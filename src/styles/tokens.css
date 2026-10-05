@@ -1,0 +1,75 @@
+/* Design tokens extracted from pen design (sv/* palette) */
+:root {
+  --sv-bg: #F5F6F8;
+  --sv-surface: #FFFFFF;
+  --sv-surface-2: #EEEFF2;
+  --sv-surface-3: #E4E7EC;
+  --sv-ink: #16181D;
+  --sv-ink-2: #59606E;
+  --sv-ink-3: #8A909C;
+  --sv-line: #E3E5EA;
+  --sv-line-2: #D0D4DB;
+  --sv-accent: #2B5BD7;
+  --sv-accent-hover: #1F49B8;
+  --sv-accent-soft: #E7EDFC;
+  --sv-success: #177245;
+  --sv-success-soft: #E4F2EA;
+  --sv-warn: #8A5A00;
+  --sv-warn-soft: #F8EFDD;
+  --sv-danger: #B3261E;
+  --sv-danger-soft: #FBE9E8;
+
+  --sv-radius-sm: 6px;
+  --sv-radius-md: 10px;
+  --sv-radius-lg: 14px;
+  --sv-radius-pill: 9999px;
+
+  --sv-font-display: 'Manrope', sans-serif;
+  --sv-font-body: 'Instrument Sans', sans-serif;
+  --sv-font-mono: 'Fragment Mono', monospace;
+
+  /* Motion tokens */
+  --sv-dur-fast: 120ms;
+  --sv-dur-icon: 150ms;
+  --sv-dur-move: 180ms;
+  --sv-dur-tree: 250ms;
+  --sv-dur-badge: 400ms;
+  --sv-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Reduced-motion fallback (project had no handling before) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--sv-bg);
+}
+
+#app {
+  min-height: 100vh;
+}
+
+/* Elements wired by the generator get pointer cursor */
+[data-clickable] {
+  cursor: pointer;
+}
+
+/* Generated 1440px page frames center horizontally on wider viewports */
+.page-root {
+  margin: 0 auto;
+}
