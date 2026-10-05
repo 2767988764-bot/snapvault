@@ -19,7 +19,8 @@ const routes = [
 // 不做鉴权拦截，访问站点（/ → /home）及各页面均无需登录。
 // 后续需要强制登录时，在此处恢复 beforeEach 守卫（读 auth.js 的 getToken）。
 const router = createRouter({
-  history: createWebHistory(),
+  // base 取构建时注入的 BASE_URL（开发为 /，GitHub Pages 子路径部署为 /snapvault/）
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes,
 })
 
