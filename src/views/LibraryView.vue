@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed, nextTick, watch } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
+import { usePreferencesStore } from '@/stores/preferences'
 import LibraryHeroView from './LibraryHeroView.vue'
 import LibraryPulledView from './LibraryPulledView.vue'
 import LibrarySidebarPanel from './LibrarySidebarPanel.vue'
@@ -27,7 +28,12 @@ const isPulling = ref(false)
 const sidebarOpen = ref(false) // SidebarPanel 是否挂载
 const panelOpen = ref(false)   // SidebarPanel 是否展开位（驱动 scale 过渡与内容压缩）
 const morphing = ref(false)    // ViewSwitch 纯白阶段标记
-const view = ref(savedUi && savedUi.view === 'search' ? 'search' : 'list') // 右侧内容：'list'（pulled 内容）| 'search'（search 内容，与 pulled 右侧模块同层级）
+// 右侧内容：'list'（pulled 内容）| 'search'（search 内容，与 pulled 右侧模块同层级）
+// 本次「详情返回」的会话恢复优先；没有会话恢复时用用户偏好（localStorage 持久化）的默认视图
+const prefs = usePreferencesStore()
+const view = ref(savedUi ? (savedUi.view === 'search' ? 'search' : 'list') : prefs.libraryView)
+// 记住用户在 Library 里选过的视图，作为下次进入的默认值
+watch(view, (v) => prefs.setLibraryView(v))
 let dragStartY = null
 let startProgress = 0
 let moveDist = 0
@@ -220,7 +226,7 @@ const switchStyle = computed(() => ({
         class="pulled-content"
         :class="{ 'liquid-glass': glassOn, 'sidebar-open': panelOpen }"
       >
-        <LibraryPulledView v-show="view === 'list'" @search="enterSearch" />
+        <LibraryPulledView v-show="view === 'list'" :active="state === 'pulled'" @search="enterSearch" />
         <!-- search 内容：与 pulled 右侧模块同层级原位切换；侧栏弹出时同样作为右侧元素，不影响左侧栏 -->
         <LibrarySearchView
           v-show="view === 'search'"
@@ -383,43 +389,6 @@ const switchStyle = computed(() => ({
   border-radius: 0px 0px 22px 22px;
   box-shadow: inset 0px 2px 8px #FFFFFFCC, inset 0px -4px 12px #8FB0FF33, 0px 12px 30px #16181D26;
 }
-.tb-shine {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 3px;
-  background-image: linear-gradient(-90deg, #7EA6FF00 0%, #B7D0FFE6 35%, #FFC2DBE6 65%, #FF9EC400 100%);
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-}
-.tb-grabber {
-  background-color: #8A909C80;
-  border-radius: 9999px;
-  height: 5px;
-  width: 42px;
-  flex-shrink: 0;
-}
-.tb-hint {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 7px;
-}
-.tb-hint svg {
-  transition: transform 0.3s ease;
-}
-.tb-hint svg.flipped {
-  transform: rotate(180deg);
-}
-.tb-text {
-  font-family: "Instrument Sans", system-ui, sans-serif;
-  font-size: 12.5px;
-  font-weight: 500;
-  color: #59606E;
-  white-space: nowrap;
-}
-
 /* ---- sheet 内容 ---- */
 .pulled-content {
   position: relative;

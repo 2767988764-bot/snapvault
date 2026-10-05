@@ -63,7 +63,7 @@ function toggleFolder(name) {
 
 <template>
   <div
-    class="sidebar-panel"
+    class="sidebar-panel sv-icon-hover-scope"
     data-pencil-name="SidebarPanel"
     :class="{ open }"
   >
@@ -80,7 +80,7 @@ function toggleFolder(name) {
             style="align-items: flex-start; box-sizing: border-box; display: flex; flex-direction: column; gap: 2px; flex: 1 1 0; min-height: 0; justify-content: flex-start; width: 240px"
           >
             <div ref="navGroupRef" class="nav-group">
-              <div class="nav-pill" :style="pillStyle"></div>
+              <div class="nav-pill sv-slide-pill" :style="pillStyle"></div>
               <div
                 class="nav-row"
                 :class="{ 'is-active': activeNav === 0 }"
@@ -327,8 +327,8 @@ function toggleFolder(name) {
                 38
               </div>
             </div>
-            <div class="folder-children">
-              <div class="fc-clip">
+            <div class="folder-children sv-collapse">
+              <div class="fc-clip sv-clip">
                 <div
                   v-for="(child, ci) in FOLDER_CHILDREN['Research']"
                   :key="child"
@@ -387,8 +387,8 @@ function toggleFolder(name) {
                 24
               </div>
             </div>
-            <div class="folder-children">
-              <div class="fc-clip">
+            <div class="folder-children sv-collapse">
+              <div class="fc-clip sv-clip">
                 <div
                   v-for="(child, ci) in FOLDER_CHILDREN['Courses']"
                   :key="child"
@@ -447,8 +447,8 @@ function toggleFolder(name) {
                 12
               </div>
             </div>
-            <div class="folder-children">
-              <div class="fc-clip">
+            <div class="folder-children sv-collapse">
+              <div class="fc-clip sv-clip">
                 <div
                   v-for="(child, ci) in FOLDER_CHILDREN['Projects']"
                   :key="child"
@@ -507,8 +507,8 @@ function toggleFolder(name) {
                 7
               </div>
             </div>
-            <div class="folder-children">
-              <div class="fc-clip">
+            <div class="folder-children sv-collapse">
+              <div class="fc-clip sv-clip">
                 <div
                   v-for="(child, ci) in FOLDER_CHILDREN['Personal']"
                   :key="child"
@@ -755,7 +755,7 @@ function toggleFolder(name) {
   overflow-y: auto;
 }
 
-/* ---- 分类选中项：active pill 180ms 滑移 ---- */
+/* ---- 分类选中项：active pill 的几何/过渡由全局 .sv-slide-pill 承担 ---- */
 .nav-group {
   position: relative;
   display: flex;
@@ -763,19 +763,6 @@ function toggleFolder(name) {
   flex-shrink: 0;
   gap: 2px;
   width: 100%;
-}
-.nav-pill {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  z-index: 0;
-  background: var(--sv-accent-soft);
-  border-radius: var(--sv-radius-md);
-  pointer-events: none;
-  transition:
-    transform var(--sv-dur-move) ease,
-    height var(--sv-dur-move) ease;
 }
 [data-pencil-name="NavRow"] {
   position: relative;
@@ -809,16 +796,7 @@ function toggleFolder(name) {
   fill: var(--sv-accent);
 }
 
-/* ---- 文件夹树展开 / 折叠：高度 250ms + chevron 150ms + 子项 200ms 错峰淡入 ---- */
-.folder-children {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows var(--sv-dur-tree) var(--sv-ease-out);
-}
-.folder-children > .fc-clip {
-  min-height: 0;
-  overflow: hidden;
-}
+/* ---- 文件夹树展开 / 折叠：0fr→1fr 与裁剪由全局 .sv-collapse/.sv-clip 承担 ---- */
 .folder.is-open + .folder-children {
   grid-template-rows: 1fr;
 }
@@ -831,28 +809,11 @@ function toggleFolder(name) {
   white-space: nowrap;
 }
 .folder.is-open + .folder-children .fc-item {
-  animation: fc-fade-in 200ms ease both;
-}
-@keyframes fc-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  --rise-from: -4px;
+  animation: sv-rise-in 200ms ease both;
 }
 
-/* ---- 图标 hover：150ms 微缩放 1.05 + 120ms 变深 ---- */
-[data-pencil-name$="Icon"],
-[data-pencil-name="Chevron"] {
-  transition: transform var(--sv-dur-icon) ease;
-}
-[data-pencil-name$="Icon"]:hover,
-[data-pencil-name="Chevron"]:hover {
-  transform: scale(1.05);
-}
+/* ---- 图标 hover 微缩放由全局 .sv-icon-hover-scope 承担；下面保留展开旋转与静色填充过渡 ---- */
 [data-pencil-name="Chevron"].is-open {
   transform: rotate(90deg);
 }

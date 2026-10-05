@@ -1,10 +1,11 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { reviewCount, bumpReviewCount } from '@/composables/useReviewCount'
+import { useReviewStore } from '@/stores/review'
 
 // 常驻顶部导航：由 App.vue 渲染，跨路由不重挂，激活指示块才能平滑滑移。
 const route = useRoute()
+const reviewStore = useReviewStore()
 
 // 路由 → 激活项（复刻改造前各页面的高亮结果；scan/settings 页无激活项）
 const ACTIVE_BY_PATH = {
@@ -79,15 +80,19 @@ watch(active, async () => {
 
 // ---- ReviewBadge：数字变化时 400ms 弹性 bounce（一次播放，不残留 transform） ----
 const bumpSeq = ref(0)
-watch(reviewCount, () => {
-  bumpSeq.value += 1
-})
+watch(
+  () => reviewStore.count,
+  () => {
+    bumpSeq.value += 1
+  }
+)
 
 const isDev = import.meta.env.DEV
 </script>
 
 <template>
   <div
+    class="sv-icon-hover-scope"
     data-pencil-name="TopNav"
     style="align-items: center; backdrop-filter: blur(15px); background-color: #0C0C0EDA; border-color: #FFFFFF1F; border-style: solid; border-width: 0px 0px 1px 0px; box-shadow: 0px 8px 24px #0000003D; box-sizing: border-box; display: flex; flex-direction: row; gap: 0px; height: 64px; justify-content: space-between; left: max(0px, calc(50% - 720px)); padding: 0px 24px; position: fixed; top: 0; width: 1440px; z-index: 80"
   >
@@ -130,7 +135,7 @@ const isDev = import.meta.env.DEV
         data-pencil-name="NavLinks"
         style="align-items: center; background-color: #FFFFFF12; border-radius: 14px; border: 1px solid #FFFFFF1A; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 2px; height: fit-content; justify-content: flex-start; padding: 4px; position: relative; width: fit-content"
       >
-        <div class="nav-indicator" :style="indicatorStyle"></div>
+        <div class="nav-indicator sv-slide-pill" :style="indicatorStyle"></div>
         <div
           v-for="(item, i) in NAV_ITEMS"
           :key="item.key"
@@ -160,7 +165,7 @@ const isDev = import.meta.env.DEV
               data-pencil-name="ReviewBadgeText"
               style='box-sizing: border-box; color: #8A5A00; font-family: "Fragment Mono", system-ui, sans-serif; font-size: 11px; font-style: normal; font-weight: 700; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
             >
-              {{ reviewCount }}
+              {{ reviewStore.count }}
             </div>
           </div>
         </div>
@@ -231,28 +236,17 @@ const isDev = import.meta.env.DEV
     <Teleport v-if="isDev" to="body">
       <div class="dev-review-trigger">
         <span class="drt-label">Review</span>
-        <button type="button" @click="bumpReviewCount(1)">+1</button>
-        <button type="button" @click="bumpReviewCount(-1)">−1</button>
+        <button type="button" @click="reviewStore.bumpReviewCount(1)">+1</button>
+        <button type="button" @click="reviewStore.bumpReviewCount(-1)">−1</button>
       </div>
     </Teleport>
   </div>
 </template>
 
 <style scoped>
-/* ---- NavLinks 激活指示块：绝对定位，180ms 滑移到目标项 ---- */
+/* ---- NavLinks 激活指示块：几何/过渡由全局 .sv-slide-pill 承担，仅覆盖底色 ---- */
 .nav-indicator {
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: 0;
-  background-color: var(--sv-accent);
-  border-radius: var(--sv-radius-md);
-  pointer-events: none;
-  transition:
-    transform var(--sv-dur-move) ease,
-    width var(--sv-dur-move) ease,
-    height var(--sv-dur-move) ease,
-    opacity var(--sv-dur-icon) ease;
+  --slide-pill-bg: var(--sv-accent);
 }
 
 /* ---- 导航项：hover 背景 120ms 淡入；激活态文字转白加粗 ---- */
@@ -286,13 +280,7 @@ const isDev = import.meta.env.DEV
   transform: translateY(1px);
 }
 
-/* ---- 图标 hover：150ms 微缩放 1.05；静色图标 120ms 变深 ---- */
-[data-pencil-name$="Icon"] {
-  transition: transform var(--sv-dur-icon) ease;
-}
-[data-pencil-name$="Icon"]:hover {
-  transform: scale(1.05);
-}
+/* ---- 图标 hover 微缩放由全局 .sv-icon-hover-scope 承担；下面保留静色填充过渡 ---- */
 [data-pencil-name="SettingsIcon"] path {
   transition: fill var(--sv-dur-fast) ease;
 }

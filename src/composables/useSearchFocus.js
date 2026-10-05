@@ -1,43 +1,16 @@
-import { ref } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { documentsApi } from '../api'
 
-// ---------------------------------------------------------------------------
-// 后端对接点（唯一需要改的地方）
-// ---------------------------------------------------------------------------
-// searchDocuments 是搜索数据源。当前返回本地示例数据；接入真实后端时把实现
-// 换成一次 API 调用即可，入参/返回结构保持不变，其余逻辑（防抖、竞态取消、
-// 加载态、结果渲染、高亮）都不需要改动。
-//
-//   export async function searchDocuments(query, { signal } = {}) {
-//     const res = await fetch(`/api/documents/search?q=${encodeURIComponent(query)}`, { signal })
-//     if (!res.ok) throw new Error(res.statusText)
-//     const data = await res.json()
-//     return data.items // [{ id, title, snippet, tag }]
-//   }
-// ---------------------------------------------------------------------------
-const MOCK_DOCUMENTS = [
-  { id: 'd1', title: 'Homography notes — lecture 07', snippet: 'Homography estimation with RANSAC and DLT, plus a worked example.', tag: 'lecture' },
-  { id: 'd2', title: 'Lease contract draft v3', snippet: 'Clause 4 · notice period, with a homography scan of the annex.', tag: 'contract' },
-  { id: 'd3', title: 'Homography matrix cheatsheet', snippet: '3×3 matrix, 8 degrees of freedom, normalization steps.', tag: 'notes' },
-  { id: 'd4', title: 'Lecture notes — projective geometry', snippet: 'Vanishing points, cross ratio, and the homography between planes.', tag: 'lecture' },
-  { id: 'd5', title: 'Receipt 2025-03-14 · Coffee lab', snippet: 'Total 18.40, paid by card. VAT included.', tag: 'receipt' },
-  { id: 'd6', title: 'Scan batch 2025-02 · receipts', snippet: '12 receipts imported from the office scanner.', tag: 'receipt' },
-  { id: 'd7', title: 'Lecture notes — week 03', snippet: 'Camera models, intrinsics, and the pinhole approximation.', tag: 'lecture' },
-]
-
+// 搜索数据源：对接 GET /api/documents/search?q=（见 src/api/index.js documentsApi.search）。
+// 入参 / 返回结构不变（[{ id, title, snippet, tag }]），防抖、竞态取消、加载态、
+// 结果渲染、高亮等逻辑都无需改动。
 export const RECENT_SEARCHES = ['homography', 'receipt 2025', 'lecture notes']
 
 export async function searchDocuments(query, { signal } = {}) {
-  const q = query.trim().toLowerCase()
+  const q = query.trim()
   if (!q) return []
-  // 模拟网络往返；接后端时整段替换为上面的 fetch 调用
-  await new Promise((resolve) => setTimeout(resolve, 120))
-  if (signal && signal.aborted) return []
-  return MOCK_DOCUMENTS.filter(
-    (d) =>
-      d.title.toLowerCase().includes(q) ||
-      d.snippet.toLowerCase().includes(q) ||
-      d.tag.toLowerCase().includes(q)
-  )
+  const items = await documentsApi.search(q, { signal })
+  return Array.isArray(items) ? items : []
 }
 
 // 把 text 按 query 命中位置切成 [{ text, hit }]，供模板逐段高亮
@@ -62,6 +35,21 @@ export function splitMatch(text, query) {
   return out.filter((s) => s.text)
 }
 
+// Tab 焦点陷阱：在「搜索输入框 + 面板内可聚焦元素」之间循环，不逃逸到背景
+// （输入框的 keydown 与面板内元素的 keydown 都走这里，保证焦点落在面板内时依旧成立）
+export function cycleFieldFocus(field, e) {
+  if (!field) return
+  const input = field.querySelector('input.sf-input')
+  const panel = field.querySelector('.sf-panel.open')
+  const items = [input, ...(panel ? panel.querySelectorAll('button') : [])].filter(
+    (el) => el && el.getClientRects().length > 0
+  )
+  if (items.length < 2) return
+  const i = items.indexOf(document.activeElement)
+  e.preventDefault()
+  items[(i + (e.shiftKey ? -1 : 1) + items.length) % items.length].focus()
+}
+
 // 搜索框聚焦交互的公共状态机：三个页面（hero / pulled / search）共用
 export function useSearchFocus({ debounce = 150 } = {}) {
   const query = ref('')
@@ -69,9 +57,19 @@ export function useSearchFocus({ debounce = 150 } = {}) {
   const loading = ref(false)
   const results = ref([])
   const recent = ref(RECENT_SEARCHES.slice())
+  // 键盘高亮项下标：只遍历「结果」（空关键词时没有可选项，保持 Enter 原有语义）
+  const activeIndex = ref(0)
 
   let timer = 0
   let ctrl = null
+  let fieldEl = null // 搜索框所在容器，用于判断是否「点击面板外部」
+
+  const activeResult = computed(() => results.value[activeIndex.value] || null)
+
+  // 结果更新 / query 变化 → 高亮重置到第 1 项
+  watch([query, results], () => {
+    activeIndex.value = 0
+  })
 
   async function run(text) {
     if (ctrl) ctrl.abort()
@@ -102,11 +100,17 @@ export function useSearchFocus({ debounce = 150 } = {}) {
 
   function onInput(e) {
     query.value = e.target.value
+    focused.value = true // 输入即展开下拉（Escape 关闭后继续输入也能重新展开）
     schedule(query.value)
   }
 
-  function open() {
+  function open(e) {
     focused.value = true
+    const t = e && e.target
+    fieldEl =
+      t && t.closest
+        ? t.closest('[data-pencil-name="SearchBar"], [data-pencil-name="SearchField"]') || t.parentElement
+        : null
   }
 
   function close() {
@@ -115,6 +119,24 @@ export function useSearchFocus({ debounce = 150 } = {}) {
     if (ctrl) ctrl.abort()
     loading.value = false
   }
+
+  // 失焦时若焦点仍落在「搜索框容器内」（如面板里的按钮）则不关闭，供 Tab 焦点陷阱使用
+  function onBlur(e) {
+    const next = e && e.relatedTarget
+    if (fieldEl && next && fieldEl.contains(next)) return
+    close()
+  }
+
+  // 点击面板外部（搜索框容器之外）关闭；输入框 / 下拉内部的点击不关闭
+  function onDocPointerDown(e) {
+    if (fieldEl && fieldEl.contains(e.target)) return
+    close()
+  }
+  watch(focused, (on) => {
+    if (on) document.addEventListener('pointerdown', onDocPointerDown, true)
+    else document.removeEventListener('pointerdown', onDocPointerDown, true)
+  })
+  onBeforeUnmount(() => document.removeEventListener('pointerdown', onDocPointerDown, true))
 
   function clear() {
     query.value = ''
@@ -130,16 +152,65 @@ export function useSearchFocus({ debounce = 150 } = {}) {
     schedule(text)
   }
 
-  // 返回 'submit' / 'cancel' / ''，由各页面决定提交（跳转）行为
+  // 高亮项在结果间移动（到端点即停，不环绕）
+  function moveActive(delta) {
+    const n = results.value.length
+    if (!n) return
+    activeIndex.value = Math.max(0, Math.min(n - 1, activeIndex.value + delta))
+  }
+
+  // 直接落到某一项（Tab 把焦点移进面板时，由面板回传下标，保证高亮与焦点同一来源）
+  function setActive(i) {
+    const n = results.value.length
+    if (!n) return
+    activeIndex.value = Math.max(0, Math.min(n - 1, i))
+  }
+
+  // 返回 'submit' / 'moveUp' / 'moveDown' / 'cancel' / 'tab' / ''，由各页面决定提交（跳转）行为
   function onKeydown(e) {
     if (e.key === 'Escape') {
+      // 关闭下拉，焦点留在输入框（不 blur），便于继续输入或再次操作
       close()
-      if (e.target && typeof e.target.blur === 'function') e.target.blur()
       return 'cancel'
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      moveActive(1)
+      return 'moveDown'
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      moveActive(-1)
+      return 'moveUp'
+    }
+    if (e.key === 'Tab') {
+      const t = e.target
+      const field =
+        fieldEl ||
+        (t && t.closest ? t.closest('[data-pencil-name="SearchBar"], [data-pencil-name="SearchField"]') : null)
+      cycleFieldFocus(field, e)
+      return 'tab'
     }
     if (e.key === 'Enter') return 'submit'
     return ''
   }
 
-  return { query, focused, loading, results, recent, onInput, open, close, clear, pick, onKeydown }
+  return {
+    query,
+    focused,
+    loading,
+    results,
+    recent,
+    activeIndex,
+    activeResult,
+    onInput,
+    open,
+    close,
+    onBlur,
+    clear,
+    pick,
+    moveActive,
+    setActive,
+    onKeydown,
+  }
 }

@@ -146,7 +146,8 @@
                 spellcheck="false"
                 @input="onInput"
                 @focus="open"
-                @blur="close"
+                @click="open"
+                @blur="onBlur"
                 @keydown="onKey"
               />
               <div
@@ -166,7 +167,11 @@
                 :recent="recent"
                 :results="results"
                 :loading="loading"
+                :active-index="activeIndex"
                 @pick="onPick"
+                @close="close"
+                @move="moveActive"
+                @activate="setActive"
               />
             </div>
             <div
@@ -816,7 +821,7 @@ const router = useRouter()
 
 // ---- 搜索框：真实 input + 聚焦交互（背景模糊变暗、下拉「最近搜索」与实时结果）----
 const inputRef = ref(null)
-const { query, focused, loading, results, recent, onInput, open, close, pick, onKeydown } =
+const { query, focused, loading, results, recent, activeIndex, activeResult, onInput, open, close, onBlur, pick, moveActive, setActive, onKeydown } =
   useSearchFocus()
 
 // 选中「最近搜索」回填查询；选中具体结果直接进文档详情
@@ -825,53 +830,27 @@ function onPick(text, item) {
   else pick(text)
 }
 
-// Enter 提交：进入 library search 页
+// 键盘动作：↑↓/Tab/Esc 由 useSearchFocus 处理；Enter 与点击行为一致（有高亮项则选中，否则进入 search 页）
 function onKey(e) {
-  if (onKeydown(e) === 'submit') emit('search')
+  const action = onKeydown(e)
+  if (action !== 'submit') return
+  const item = activeResult.value
+  if (item) onPick(item.title, item)
+  else emit('search')
 }
 </script>
 
 <style scoped>
-/* 搜索框聚焦：页面背景 blur(4px) + 变暗 70%，搜索框抬升强调（宽度保持设计稿 880px） */
-/* 去掉 SearchHero 的 stacking context，让 .sf-raised 的 z-index 能盖过 .sf-dim */
+/* 搜索框聚焦：共享基座见 src/styles/shared.css */
+/* 去掉 SearchHero 的 stacking context，让 .sf-raised 的 z-index 能盖过 .sf-dim；
+   hero 输入字号/字重更大，抬升阴影更深（scoped 规则优先于全局 .sf-bar.sf-raised） */
 [data-pencil-name="SearchHero"] {
   z-index: auto !important;
-}
-.sf-dim {
-  position: absolute;
-  inset: 0;
-  z-index: 40;
-  background-color: rgba(12, 12, 14, 0.7);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-.sf-bar {
-  transition: border-color 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --sf-input-size: 17px;
+  --sf-input-weight: 400;
 }
 .sf-bar.sf-raised {
-  z-index: 50;
   border-color: #2b5bd7 !important;
   box-shadow: 0 0 0 4px rgba(43, 91, 215, 0.16), 0 18px 38px rgba(22, 24, 29, 0.22);
-}
-.sf-input {
-  box-sizing: border-box;
-  flex: 1 1 0;
-  min-width: 0;
-  padding: 0;
-  border: none;
-  outline: none;
-  background: transparent;
-  color: #16181d;
-  font-family: "Instrument Sans", system-ui, sans-serif;
-  font-size: 17px;
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: normal;
-  text-align: left;
-}
-.sf-input::placeholder {
-  color: #8a909c;
-  font-weight: 400;
 }
 </style>

@@ -243,7 +243,8 @@ function check(name, ok, detail) {
         f1.chevDeg === 90 &&
         f1.names.join(',') === 'Papers,Datasets,Notes' &&
         f1.delays.join(',') === '0s,0.04s,0.08s' &&
-        f1.anim.every((n) => n.startsWith('fc-fade-in')) &&
+        // 入场动画已统一为全局关键帧 sv-rise-in（原 fc-fade-in 已消重）
+        f1.anim.every((n) => n.startsWith('sv-rise-in')) &&
         f1.opacity.every((o) => o === 1),
       f1
     );

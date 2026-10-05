@@ -177,9 +177,13 @@ function ty(t) {
     );
     check('DD4 Escape 关闭下拉', panelClosed === '0', { opacity: panelClosed });
 
-    // —— A1 异步按钮：点击后立即 disabled + spinner ——
+    // —— A0/A1 异步按钮：破坏性操作先二次确认，确认后立即 disabled + spinner ——
     const firstAsync = page.locator('[data-pencil-name="AsyncBtn"]').first();
     await firstAsync.click();
+    await page.waitForTimeout(150);
+    check('A0 Clear cache 先弹统一二次确认层', (await page.locator('[data-pencil-name="ConfirmDialog"]').count()) === 1);
+    await page.click('[data-pencil-name="ConfirmAccept"]');
+    await page.waitForTimeout(80);
     const busyState = await page.evaluate(() => {
       const btn = document.querySelector('[data-pencil-name="AsyncBtn"]');
       return {
@@ -187,25 +191,29 @@ function ty(t) {
         spinner: btn.querySelectorAll('.sv-spinner').length,
       };
     });
-    check('A1 点击后按钮禁用且出现 spinner', busyState.disabled === 'true' && busyState.spinner === 1, busyState);
+    check('A1 确认后按钮禁用且出现 spinner', busyState.disabled === 'true' && busyState.spinner === 1, busyState);
 
     // —— A2 完成后 toast 可见、按钮恢复 ——
-    await page.waitForTimeout(1100);
+    await page.waitForTimeout(1400);
     const after = await page.evaluate(() => {
       const btn = document.querySelector('[data-pencil-name="AsyncBtn"]');
-      const toast = document.querySelector('[data-pencil-name="SettingsToast"]');
+      const items = [...document.querySelectorAll('[data-pencil-name="ToastHost"] .toast')];
+      const info = items.find((el) => el.getAttribute('data-toast-type') === 'info');
+      const undo = items.find((el) => el.getAttribute('data-toast-type') === 'undo');
       return {
         disabled: btn.getAttribute('aria-disabled'),
         spinner: btn.querySelectorAll('.sv-spinner').length,
-        toast: toast ? getComputedStyle(toast).opacity : null,
-        text: toast ? toast.textContent.trim() : null,
+        infoText: info ? info.textContent.trim() : null,
+        undoAction: undo ? (undo.querySelector('.toast-action')?.textContent || '').trim() : null,
+        cache: (document.querySelector('[data-pencil-name="CacheStat"]')?.textContent || '').trim(),
       };
     });
     check(
-      'A2 完成后 toast 可见且按钮恢复',
-      after.disabled === 'false' && after.spinner === 0 && after.toast === '1',
+      'A2 完成后 info toast「Cache cleared」可见、按钮恢复，并给出可撤销通知',
+      after.disabled === 'false' && after.spinner === 0 && /Cache cleared/.test(after.infoText || '') && after.undoAction === '撤销',
       after
     );
+    check('A2b 缓存占用清零（真实状态被改动）', /Empty/.test(after.cache), { cache: after.cache });
 
     // —— C1 卡片 hover 上浮 ——
     await page.locator('[data-pencil-name="SettingsCard"]').first().hover();

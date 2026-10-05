@@ -1,3 +1,28 @@
+<script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { authApi } from '@/api'
+
+// 登录页为设计稿静态表单（输入框为静态展示）。Sign in 先对接登录接口、
+// 拿到 token 写入本地，再进入首页；失败由 http 层统一提示。
+// 联调时把下面的演示账号替换为真实表单绑定即可。
+const router = useRouter()
+const busy = ref(false)
+
+async function signIn() {
+  if (busy.value) return
+  busy.value = true
+  try {
+    await authApi.login('you@studio.com', 'snapvault')
+    router.push('/home')
+  } catch (e) {
+    /* 失败已由 http 层统一 toast */
+  } finally {
+    busy.value = false
+  }
+}
+</script>
+
 <template>
       <div class="page-root"
         data-pencil-name="11 · Login · Split"
@@ -479,7 +504,7 @@
             </div>
           </div>
           <div
-            data-pencil-name="SignInButton" data-clickable @click="$router.push('/home')"
+            data-pencil-name="SignInButton" data-clickable @click="signIn"
             style="align-items: center; background-color: #2B5BD7; border-radius: 12px; box-shadow: 0px 10px 24px #2B5BD73D; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 9px; height: 50px; justify-content: center; width: 100%"
           >
             <div

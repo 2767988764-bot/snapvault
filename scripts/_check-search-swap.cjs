@@ -1,9 +1,9 @@
 const { chromium } = require('playwright-core');
 
 // search 原位切换 + SidebarPanel 两段式变形验证（场景 A-H）：
-//   A: hero -> 上拉 -> pulled -> ListBtn -> search-in-flow（URL 不变、拉条共享、pulled 隐藏）
+//   A: hero -> 上拉 -> pulled -> 搜索框 Enter -> search-in-flow（URL 不变、拉条共享、pulled 隐藏）
 //   B: search 态下拉 300px(>256.5 过半) -> 退出 search 返回 list
-//   C: ViewSwitch 两段式弹入 SidebarPanel -> page-root 压缩 1200px/左移 240px -> ListBtn 进 search（侧栏保持、右侧容器切换）
+//   C: ViewSwitch 两段式弹入 SidebarPanel -> page-root 压缩 1200px/左移 240px -> 搜索框 Enter 进 search（侧栏保持、右侧容器切换）
 //   D: search+侧栏态点击拉条 -> 返回 list，侧栏仍展开
 //   E: hero SearchField / float-search 原位切换
 //   F: search 页左侧方格 -> 回 pulled up（侧栏保持展开）
@@ -66,6 +66,13 @@ const { chromium } = require('playwright-core');
     return v ? v.classList.contains('fade-white') : false;
   });
 
+  // 进入 search 视图：搜索框聚焦后 Enter（无高亮结果时进入完整搜索页）
+  async function enterSearch() {
+    await page.click('.pulled-layer [data-pencil-name="SearchQuery"]');
+    await page.waitForTimeout(120);
+    await page.keyboard.press('Enter');
+  }
+
   async function dragBar(delta, steps) {
     const b = await page.$('[data-pencil-name="TravelBar"]');
     const r = await b.boundingBox();
@@ -85,7 +92,7 @@ const { chromium } = require('playwright-core');
   out.A1_barSnapped = await barY(); // ~64
   out.A1_pulledRoot = await flowChild(0); // visible（list 态）
   out.A1_searchRoot = await flowChild(1); // hidden（search-in-flow v-show=false）
-  await page.click('.pulled-layer [data-pencil-name="ListBtn"]');
+  await enterSearch();
   await page.waitForTimeout(300); // list↔search 为即时切换（无动画）
   out.A2_url = page.url(); // 仍 /library
   out.A2_barStill = await barY(); // ~64（共享拉条吸附）
@@ -112,7 +119,7 @@ const { chromium } = require('playwright-core');
   out.C1_sidebarScale = await sidebarScale(); // ~1（0.7s 放大完成）
   out.C1_sidebarTop = await sidebarTop(); // ~128（barY 64 + 64，恒在拉条下方）
   out.C1_pageRoot = await pageRootBox(); // {w:~1200, ml:~240}（压缩）
-  await page.click('.pulled-layer [data-pencil-name="ListBtn"]');
+  await enterSearch();
   await page.waitForTimeout(900);
   out.C2_sidebarStill = await sidebarX(); // ~0（不受影响）
   out.C2_sidebarTopStill = await sidebarTop(); // ~128
@@ -190,7 +197,7 @@ const { chromium } = require('playwright-core');
   await page.click('[data-pencil-name="ViewSwitch"]');
   await page.waitForTimeout(1200);
   out.F2_sidebarOpen = await sidebarX(); // ~0
-  await page.click('.pulled-layer [data-pencil-name="ListBtn"]');
+  await enterSearch();
   await page.waitForTimeout(900);
   out.F2_searchRoot = await flowChild(1); // visible（search-in-flow 切换）
   out.F2_sidebarStill = await sidebarX(); // ~0（左侧栏不变）

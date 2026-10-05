@@ -15,7 +15,12 @@ const routes = [
   { path: '/login', name: 'login', component: () => import('@/views/LoginView.vue') },
 ]
 
-export default createRouter({
+// 登录页保留在路由与文件中，但当前处于「暂不接入」状态：
+// 不做鉴权拦截，访问站点（/ → /home）及各页面均无需登录。
+// 后续需要强制登录时，在此处恢复 beforeEach 守卫（读 auth.js 的 getToken）。
+const router = createRouter({
   history: createWebHistory(),
   routes,
 })
+
+export default router

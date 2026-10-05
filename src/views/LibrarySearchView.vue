@@ -10,7 +10,7 @@
           class="search-travel-bar"
           data-pencil-name="SearchTravelBar" data-clickable
         >
-          <div class="stb-shine"></div>
+          <div class="tb-shine"></div>
           <div class="tb-grabber"></div>
           <div class="tb-hint">
             <svg viewBox="0 0 13.99993896484375 14" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0; height: 14px; width: 14px"><path d="M3.34619 4.68945q-0.25293 0.08545-0.37939 0.30762-0.04102 0.08545-0.04102 0.25293 0 0.16748 0.04785 0.25977 0.05127 0.08887 1.8628 1.9038 1.81494 1.81152 1.9038 1.8628 0.09229 0.04785 0.25977 0.04785 0.16748 0 0.25635-0.04785 0.09229-0.05127 1.90381-1.8628 1.81494-1.81494 1.86279-1.9038 0.05127-0.09229 0.05127-0.25977 0-0.16748-0.04102-0.25293-0.09912-0.16748-0.28027-0.2666-0.05811-0.02734-0.09912-0.04102-0.04102-0.01367-0.15381-0.01367-0.11279 0-0.15381 0.01367-0.04101 0.01367-0.11279 0.04102-0.09912 0.05811-1.66455 1.62695l-1.56885 1.56543-2.82666-2.81299q-0.31104-0.29395-0.42041-0.37939-0.08545-0.05469-0.19824-0.05469l-0.02735 0q-0.14014 0-0.18115 0.01367z" fill="#59606E"></path></svg>
@@ -90,45 +90,7 @@
                   </svg>
                 </div>
               </div>
-              <div
-                data-pencil-name="SortMenu"
-                style="align-items: center; background-color: #FFFFFF; border-radius: 9px; border: 1px solid #E3E5EA; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 8px; height: 32px; justify-content: flex-start; padding: 8px 12px; width: fit-content"
-              >
-                <svg
-                  data-pencil-name="SortIcon"
-                  data-icon-name="arrow-up-down"
-                  data-icon-set="lucide"
-                  viewBox="0 0 13.99993896484375 14"
-                  preserveAspectRatio="xMidYMid meet"
-                  xmlns="http://www.w3.org/2000/svg"
-                  style="box-sizing: border-box; flex-shrink: 0; height: 14px; width: 14px"
-                >
-                  <path
-                    d="M3.8623 1.79102q-0.05469 0.01367-0.27343 0.21875-0.21533 0.20166-1.0835 1.06982-0.89551 0.89551-1.08691 1.10059-0.18799 0.20166-0.21533 0.27343-0.06836 0.2085 0.01367 0.42725 0.08545 0.21533 0.28027 0.31445 0.09912 0.04102 0.23926 0.04102l0.02734 0q0.12646 0 0.19483-0.02735 0.07178-0.02734 0.23925-0.18457 0.11279-0.0957 0.50586-0.50244l0.79639-0.78271 0 7.14014q0.01367 0.69726 0.02734 0.8955 0.01367 0.14014 0.05811 0.19483l0.02734 0.02734q0.15381 0.22559 0.417 0.24609 0.2666 0.02051 0.46484-0.17431 0.12646-0.12646 0.15381-0.29395 0.02734-0.11279 0.02734-4.06054l0-3.96143 0.68701 0.70068q0.46143 0.44775 0.60157 0.58106 0.14014 0.12988 0.20849 0.16064 0.23926 0.10938 0.46143 0.01367 0.22559-0.09912 0.32129-0.32128 0.09912-0.22559-0.01026-0.46485-0.03076-0.06836-0.23926-0.29053-0.2085-0.22559-1.04931-1.05273-1.23389-1.23047-1.32617-1.27148-0.08887-0.04443-0.22901-0.05127-0.14014-0.00684-0.23926 0.03418z m5.90967-0.02735q-0.14014 0.04102-0.2666 0.16065-0.12646 0.11963-0.15381 0.30078-0.02734 0.08545-0.02734 4.04687l0 3.9751-0.68701-0.70068q-0.43408-0.43408-0.58789-0.5708-0.15381-0.14014-0.2085-0.15723-0.19824-0.0957-0.3999-0.0376-0.20166 0.05469-0.32813 0.21533-0.12646 0.16064-0.11279 0.36914l0 0.02735q0.01367 0.11279 0.05469 0.18457 0.07178 0.10938 0.3247 0.37597l0.96387 0.96729q1.23389 1.23047 1.32276 1.2749 0.09229 0.04102 0.24609 0.04102l0.04102 0q0.11279 0.01367 0.19824-0.02735 0.0957-0.07178 0.34863-0.30761 0.18115-0.1709 0.81348-0.81348l0.19482-0.19482q0.88184-0.88184 1.06983-1.07666 0.19141-0.19824 0.21875-0.27002 0.06836-0.2085-0.01026-0.417-0.0752-0.21191-0.28369-0.3247-0.09912-0.04102-0.23926-0.04102l-0.02734 0q-0.12646 0-0.19824 0.02735-0.06836 0.02734-0.23584 0.18457-0.11279 0.0957-0.50586 0.50244l-0.79639 0.78271 0-7.14013q-0.01367-0.69727-0.02734-0.89551-0.01367-0.14014-0.05811-0.19483l-0.01367-0.02734q-0.0957-0.14014-0.28028-0.2085-0.18115-0.07178-0.34863-0.03076z"
-                    fill="#59606E"
-                  ></path>
-                </svg>
-                <div
-                  data-pencil-name="SortLabel"
-                  style='box-sizing: border-box; color: #16181D; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 13px; font-style: normal; font-weight: 500; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                >
-                  Best match
-                </div>
-                <svg
-                  data-pencil-name="SortChevron"
-                  data-icon-name="chevron-down"
-                  data-icon-set="lucide"
-                  viewBox="0 0 13.99993896484375 14"
-                  preserveAspectRatio="xMidYMid meet"
-                  xmlns="http://www.w3.org/2000/svg"
-                  style="box-sizing: border-box; flex-shrink: 0; height: 14px; width: 14px"
-                >
-                  <path
-                    d="M3.34619 4.68945q-0.25293 0.08545-0.37939 0.30762-0.04102 0.08545-0.04102 0.25293 0 0.16748 0.04785 0.25977 0.05127 0.08887 1.8628 1.9038 1.81494 1.81152 1.9038 1.8628 0.09229 0.04785 0.25977 0.04785 0.16748 0 0.25635-0.04785 0.09229-0.05127 1.90381-1.8628 1.81494-1.81494 1.86279-1.9038 0.05127-0.09229 0.05127-0.25977 0-0.16748-0.04102-0.25293-0.09912-0.16748-0.28027-0.2666-0.05811-0.02734-0.09912-0.04102-0.04102-0.01367-0.15381-0.01367-0.11279 0-0.15381 0.01367-0.04101 0.01367-0.11279 0.04102-0.09912 0.05811-1.66455 1.62695l-1.56885 1.56543-2.82666-2.81299q-0.31104-0.29395-0.42041-0.37939-0.08545-0.05469-0.19824-0.05469l-0.02735 0q-0.14014 0-0.18115 0.01367z"
-                    fill="#8A909C"
-                  ></path>
-                </svg>
-              </div>
+              <SortMenu label="Best match" :interactive="false" />
             </div>
           </div>
           <div
@@ -162,8 +124,9 @@
               spellcheck="false"
               @input="onInput"
               @focus="open"
-              @blur="close"
-              @keydown="onKeydown"
+              @click="open"
+              @blur="onBlur"
+              @keydown="onKey"
             />
             <svg
               data-pencil-name="SearchClear"
@@ -227,7 +190,11 @@
               :recent="recent"
               :results="results"
               :loading="loading"
+              :active-index="activeIndex"
               @pick="onPick"
+              @close="close"
+              @move="moveActive"
+              @activate="setActive"
             />
           </div>
           <div
@@ -916,6 +883,7 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSearchFocus } from '../composables/useSearchFocus'
 import SearchSuggestPanel from '../components/SearchSuggestPanel.vue'
+import SortMenu from '../components/SortMenu.vue'
 
 const emit = defineEmits(['back']) // 方格按钮：回到 pulled up 网格视图
 
@@ -931,13 +899,21 @@ const MAX_PULL = BAR_TOP - NAV_H // 577
 
 // ---- 搜索框：真实 input + 聚焦交互（背景模糊变暗、下拉「最近搜索」与实时结果）----
 const inputRef = ref(null)
-const { query, focused, loading, results, recent, onInput, open, close, clear, pick, onKeydown } =
+const { query, focused, loading, results, recent, activeIndex, activeResult, onInput, open, close, onBlur, clear, pick, moveActive, setActive, onKeydown } =
   useSearchFocus()
 
 // 选中「最近搜索」回填查询；选中具体结果直接进文档详情
 function onPick(text, item) {
   if (item) router.push('/document-detail')
   else pick(text)
+}
+
+// 键盘动作：↑↓/Tab/Esc 由 useSearchFocus 处理；Enter 与点击一致（选中高亮结果 → 文档详情）
+function onKey(e) {
+  const action = onKeydown(e)
+  if (action !== 'submit') return
+  const item = activeResult.value
+  if (item) router.push('/document-detail')
 }
 
 let dragStartY = null
@@ -1018,82 +994,12 @@ function onPointerUp() {
   box-shadow: inset 0px 2px 8px #FFFFFFCC, inset 0px -4px 12px #8FB0FF33, 0px 12px 30px #16181D26;
   cursor: pointer;
 }
-.stb-shine {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 3px;
-  background-image: linear-gradient(-90deg, #7EA6FF00 0%, #B7D0FFE6 35%, #FFC2DBE6 65%, #FF9EC400 100%);
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-}
-.tb-grabber {
-  background-color: #8A909C80;
-  border-radius: 9999px;
-  height: 5px;
-  width: 42px;
-  flex-shrink: 0;
-}
-.tb-hint {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 7px;
-}
-.tb-text {
-  font-family: "Instrument Sans", system-ui, sans-serif;
-  font-size: 12.5px;
-  font-weight: 500;
-  color: #59606E;
-  white-space: nowrap;
-}
-
-/* ---- 搜索框聚焦：页面背景 blur(4px) + 变暗 70%，搜索框抬升强调（宽度保持全宽）---- */
+/* ---- 搜索框聚焦：共享基座见 src/styles/shared.css ---- */
 .sf-stage {
   position: relative;
 }
-.sf-dim {
-  position: absolute;
-  inset: 0;
-  z-index: 40;
-  background-color: rgba(12, 12, 14, 0.7);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
+/* search 页的搜索栏需自身建立定位上下文，承载绝对定位的下拉面板 */
 .sf-bar {
   position: relative;
-  transition: box-shadow 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
-    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.sf-bar.sf-raised {
-  z-index: 50;
-  box-shadow: 0 0 0 4px rgba(43, 91, 215, 0.16), 0 16px 34px rgba(22, 24, 29, 0.2);
-}
-.sf-input {
-  box-sizing: border-box;
-  flex: 1 1 0;
-  min-width: 0;
-  padding: 0;
-  border: none;
-  outline: none;
-  background: transparent;
-  color: #16181d;
-  font-family: "Instrument Sans", system-ui, sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0;
-  line-height: normal;
-  text-align: left;
-}
-.sf-input::placeholder {
-  color: #8a909c;
-  font-weight: 400;
-}
-.sf-clear {
-  cursor: pointer;
-}
-.sf-clear.hidden {
-  visibility: hidden;
 }
 </style>

@@ -45,8 +45,10 @@ const { chromium } = require('playwright-core');
     !!document.querySelector('.pulled-layer [data-pencil-name="FilePreview"]') &&
     getComputedStyle(document.querySelector('.pulled-layer [data-pencil-name="FilePreview"]')).display !== 'none');
 
-  // 3) 切到 search 视图，再从结果行进详情并返回
-  await page.click('[data-pencil-name="Results"] [data-pencil-name="ListBtn"], .pulled-content [data-pencil-name="ListBtn"]');
+  // 3) 切到 search 视图（搜索框内 Enter，无高亮结果时进入完整搜索页），再从结果行进详情并返回
+  await page.click('.pulled-content [data-pencil-name="SearchQuery"]');
+  await page.waitForTimeout(150);
+  await page.keyboard.press('Enter');
   await page.waitForTimeout(600);
   out.searchVisible = await page.evaluate(() => {
     const el = document.querySelector('.pulled-content [data-pencil-name="ResultRow"]');

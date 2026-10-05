@@ -1,6 +1,6 @@
 <script setup>
-import { computed } from 'vue'
-import { splitMatch } from '../composables/useSearchFocus'
+import { computed, nextTick, ref, watch } from 'vue'
+import { splitMatch, cycleFieldFocus } from '../composables/useSearchFocus'
 
 const props = defineProps({
   open: { type: Boolean, default: false },
@@ -8,20 +8,65 @@ const props = defineProps({
   recent: { type: Array, default: () => [] },
   results: { type: Array, default: () => [] },
   loading: { type: Boolean, default: false },
+  activeIndex: { type: Number, default: 0 },
 })
 
-const emit = defineEmits(['pick'])
+const emit = defineEmits(['pick', 'close', 'move', 'activate'])
 
 const hasQuery = computed(() => props.query.trim().length > 0)
+
+const rootRef = ref(null)
 
 function seg(text) {
   return splitMatch(text, props.query)
 }
+
+// 高亮项变化时保持可见（面板超高滚动 / 窗口较小时生效）
+watch(
+  () => props.activeIndex,
+  async () => {
+    await nextTick()
+    const el = rootRef.value && rootRef.value.querySelector('.sf-result.is-active')
+    if (el && el.scrollIntoView) el.scrollIntoView({ block: 'nearest' })
+  }
+)
+
+function fieldEl() {
+  return rootRef.value && rootRef.value.closest('[data-pencil-name="SearchBar"], [data-pencil-name="SearchField"]')
+}
+function inputEl() {
+  const field = fieldEl()
+  return field && field.querySelector('input.sf-input')
+}
+
+// 键盘焦点落在面板内（Tab 进入）时：
+//   Esc     → 回焦输入框并关闭
+//   Tab     → 在「输入框 + 面板内元素」之间循环，不逃逸到背景
+//   ↑ / ↓   → 回焦输入框，把移动动作交回 useSearchFocus（高亮与 Enter 始终由输入框统一驱动）
+function onPanelKeydown(e) {
+  if (e.key === 'Escape') {
+    e.stopPropagation()
+    const el = inputEl()
+    if (el) el.focus()
+    emit('close')
+    return
+  }
+  if (e.key === 'Tab') {
+    cycleFieldFocus(fieldEl(), e)
+    return
+  }
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    e.preventDefault()
+    const el = inputEl()
+    if (el) el.focus()
+    emit('move', e.key === 'ArrowDown' ? 1 : -1)
+  }
+}
 </script>
 
 <template>
-  <div class="sf-panel" :class="{ open }" @mousedown.prevent>
-    <div class="sf-clip">
+  <div ref="rootRef" class="sf-panel sv-collapse" :class="{ open }" @mousedown.prevent @keydown="onPanelKeydown">
+    <div class="sf-clip sv-clip">
       <div class="sf-card">
         <div v-if="recent.length" class="sf-section">
           <div class="sf-label">Recent searches</div>
@@ -30,7 +75,7 @@ function seg(text) {
               v-for="t in recent"
               :key="t"
               type="button"
-              class="sf-chip"
+              class="sf-chip sv-focus"
               @click="emit('pick', t, null)"
             >
               <svg class="sf-chip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -48,13 +93,18 @@ function seg(text) {
             {{ loading ? 'Searching…' : `Results · ${results.length}` }}
           </div>
           <div v-if="!loading && !results.length" class="sf-empty">No matches for “{{ query }}”</div>
-          <div v-else :key="query" class="sf-results">
+          <div v-else :key="query" class="sf-results" role="listbox">
             <button
               v-for="(r, i) in results"
               :key="r.id"
               type="button"
               class="sf-result"
+              :class="{ 'is-active': i === activeIndex }"
+              role="option"
+              :aria-selected="i === activeIndex"
+              :data-active="i === activeIndex ? 'true' : 'false'"
               :style="{ animationDelay: `${i * 30}ms` }"
+              @focus="emit('activate', i)"
               @click="emit('pick', r.title, r)"
             >
               <span class="sf-result-title">
@@ -80,18 +130,13 @@ function seg(text) {
   left: 0;
   right: 0;
   z-index: 60;
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 320ms cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: none;
+  /* 覆盖 shared 默认时长，保留原作 320ms 展开过渡 */
+  transition: grid-template-rows 320ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .sf-panel.open {
   grid-template-rows: 1fr;
   pointer-events: auto;
-}
-.sf-clip {
-  min-height: 0;
-  overflow: hidden;
 }
 .sf-card {
   display: flex;
@@ -171,11 +216,19 @@ function seg(text) {
   background-color: transparent;
   text-align: left;
   cursor: pointer;
+  --rise-from: 8px;
   opacity: 0;
-  animation: sf-fade-in-up 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: sv-rise-in 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 .sf-result:hover {
   background-color: #f5f6f8;
+}
+/* 键盘高亮：--sv-accent-soft 背景 + 左侧靛蓝指示条（Tab 聚焦时同样生效） */
+.sf-result.is-active,
+.sf-result:focus-visible {
+  background-color: var(--sv-accent-soft);
+  box-shadow: inset 2px 0 0 var(--sv-accent);
+  outline: none;
 }
 .sf-result-title {
   grid-area: title;
@@ -216,16 +269,5 @@ function seg(text) {
   font-family: "Instrument Sans", system-ui, sans-serif;
   font-size: 12.5px;
   color: #8a909c;
-}
-
-@keyframes sf-fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 </style>

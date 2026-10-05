@@ -59,7 +59,7 @@
               data-pencil-name="CrumbDoc"
               style='box-sizing: border-box; color: #16181D; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 13px; font-style: normal; font-weight: 600; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
             >
-              Introduction to Homography
+              {{ docTitle }}
             </div>
             <div
               data-pencil-name="DetailStatus"
@@ -93,12 +93,22 @@
           >
             <svg
               data-pencil-name="FavIcon"
+              class="sv-focus"
+              :class="{ 'is-fav': isFav }"
               data-icon-name="star"
               data-icon-set="lucide"
               viewBox="0 0 13.99993896484375 14"
               preserveAspectRatio="xMidYMid meet"
               xmlns="http://www.w3.org/2000/svg"
+              role="button"
+              tabindex="0"
+              :aria-pressed="isFav"
+              :aria-label="isFav ? '取消收藏' : '收藏'"
+              data-clickable
               style="box-sizing: border-box; flex-shrink: 0; height: 17px; width: 17px"
+              @click="toggleFav"
+              @keydown.enter.prevent="toggleFav"
+              @keydown.space.prevent="toggleFav"
             >
               <path
                 d="M6.87354 0.60156q-0.28027 0.02734-0.50245 0.25293-0.08545 0.08203-0.13672 0.16748-0.04785 0.08545-0.21533 0.43408-0.86816 1.75-1.05615 2.11573-0.18799 0.3623-0.27344 0.44092-0.08203 0.0752-0.17431 0.11279-0.09229 0.03418-1.62012 0.25976-1.52441 0.22217-1.63379 0.24952-0.22559 0.05469-0.40674 0.23584-0.11279 0.11279-0.1709 0.21191-0.05469 0.09912-0.08886 0.25293-0.03418 0.15381 0.00683 0.32812 0.04102 0.17432 0.14014 0.32813 0.04102 0.08545 1.20312 1.20312l0.1128 0.09913q0.62891 0.62891 0.81347 0.79638 0.23584 0.25293 0.29395 0.35205 0.04102 0.08203 0.05469 0.2085l0 0.01367q0 0.09912-0.04102 0.39307-0.04102 0.29395-0.22559 1.28857-0.24951 1.55518-0.24951 1.63721 0 0.35205 0.26319 0.6289 0.19824 0.18457 0.44775 0.23926 0.18457 0.04102 0.36572 0 0.09912-0.02734 0.28028-0.11279l1.66455-0.86817q0.81348-0.43408 0.96728-0.50244 0.15381-0.07178 0.23926-0.07177l0.04102-0.01368q0.14014 0 0.24951 0.04444 0.11279 0.04102 1.37402 0.71435l1.34326 0.69727q0.18115 0.08545 0.28028 0.11279 0.18115 0.04102 0.36572 0 0.26318-0.05469 0.44775-0.23926 0.26318-0.27686 0.26319-0.6289 0-0.0957-0.24952-1.62354-0.18457-0.99463-0.22558-1.28857-0.04102-0.29395-0.04102-0.38965l0-0.03076q0.01367-0.12646 0.05469-0.19483 0.0581-0.11279 0.29395-0.34863 0.16748-0.1709 0.7998-0.78613l0.12647-0.12647q1.14844-1.11768 1.21679-1.21679 0.14014-0.22559 0.14014-0.48194 0-0.25977-0.14014-0.48535-0.08545-0.14014-0.23926-0.24267-0.15381-0.10596-0.32128-0.14698-0.08203-0.01367-1.60987-0.23584-1.52441-0.22559-1.6167-0.25976-0.09229-0.0376-0.17773-0.11279-0.08203-0.07861-0.26318-0.42725-0.18115-0.35205-1.04932-2.11572-0.18115-0.34863-0.23242-0.44092-0.04785-0.09229-0.1333-0.17432-0.22217-0.22559-0.4751-0.25293l-0.12647-0.01367q-0.04102 0-0.1538 0.01367z m0.70068 2.65918q0.57422 1.14844 0.64258 1.26123 0.07178 0.11279 0.25293 0.28711 0.18115 0.17432 0.29394 0.25977 0.25293 0.14014 0.5332 0.20849 0.14014 0.04102 1.35694 0.21875 1.2168 0.17432 1.24756 0.18799 0.01367 0-0.03077 0.04102l-0.29394 0.30761-0.8374 0.81348q-0.70068 0.68701-0.77246 0.78272-0.2085 0.29395-0.32129 0.68701-0.02734 0.11279-0.02735 0.40674l0 0.28027 0.2085 1.23047q0.22559 1.23389 0.21875 1.24072-0.00684 0.00684-0.79297-0.41357l-0.05469-0.02735q-0.96729-0.50586-1.23046-0.64599-0.37939-0.18115-0.56055-0.22217-0.14014-0.04443-0.39307-0.04444l-0.02734 0q-0.25293 0-0.39307 0.04444-0.18115 0.04102-0.56055 0.22217-0.26318 0.14014-1.23046 0.64599l-0.05469 0.02735q-0.78613 0.42041-0.79297 0.41357-0.00684-0.00684 0.21875-1.24072l0.2085-1.23047 0-0.29395q0-0.28027-0.02735-0.39306-0.11279-0.39307-0.32129-0.68701-0.07178-0.0957-0.75879-0.76905l-1.02197-0.99463q-0.16748-0.16748-0.15381-0.18115 0.01367-0.01367 1.24414-0.18799 1.23389-0.17773 1.36035-0.21875 0.36572-0.08203 0.65967-0.3042 0.29395-0.22559 0.48877-0.55029 0.05811-0.10938 0.59473-1.20654 0.54004-1.10059 0.55371-1.10059 0.01367 0 0.57422 1.14502z"
@@ -169,10 +179,21 @@
                 ></path>
               </svg>
             </div>
-            <div
-              data-pencil-name="MoreBtn"
-              style="align-items: center; background-color: #FFFFFF; border-radius: 9px; border: 1px solid #D0D4DB; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 0px; height: 34px; justify-content: center; width: 34px"
-            >
+            <div ref="moreWrap" class="more-wrap" @keydown="onMoreKeydown">
+              <div
+                ref="moreBtn"
+                data-pencil-name="MoreBtn"
+                class="more-btn sv-focus"
+                :class="{ 'is-open': moreOpen }"
+                role="button"
+                tabindex="0"
+                aria-haspopup="menu"
+                :aria-expanded="moreOpen"
+                aria-label="More actions"
+                data-clickable
+                style="align-items: center; background-color: #FFFFFF; border-radius: 9px; border: 1px solid #D0D4DB; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 0px; height: 34px; justify-content: center; width: 34px"
+                @click="toggleMore"
+              >
               <svg
                 data-pencil-name="MoreIcon"
                 data-icon-name="ellipsis"
@@ -187,6 +208,32 @@
                   fill="#59606E"
                 ></path>
               </svg>
+              </div>
+
+              <!-- 更多菜单：导出 PDF / 分享 / 移动… + 删除（未接入项统一提示） -->
+              <div
+                ref="morePanel"
+                class="more-panel sv-panel"
+                :class="{ 'is-open': moreOpen }"
+                data-pencil-name="MorePanel"
+                role="menu"
+                tabindex="-1"
+                aria-label="More actions"
+              >
+                <template v-for="(item, i) in MORE_ITEMS" :key="item.key">
+                  <div v-if="item.danger" class="more-divider" aria-hidden="true"></div>
+                  <div
+                    class="more-item sv-option"
+                    :class="{ 'is-active': i === moreIndex, 'is-danger': item.danger }"
+                    data-pencil-name="MoreItem"
+                    role="menuitem"
+                    tabindex="-1"
+                    @click.stop="runMore(item)"
+                  >
+                    <span>{{ item.label }}</span>
+                  </div>
+                </template>
+              </div>
             </div>
           </div>
         </div>
@@ -729,20 +776,41 @@
               data-pencil-name="SideTitleField"
               style="align-items: center; background-color: #FFFFFF; border-radius: 10px; border: 1px solid #D0D4DB; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 10px; height: fit-content; justify-content: space-between; padding: 10px 12px; width: 100%"
             >
+              <input
+                v-if="renaming"
+                ref="renameInput"
+                v-model="draftTitle"
+                class="side-title-input"
+                data-pencil-name="SideTitleInput"
+                type="text"
+                aria-label="Document title"
+                @keydown.enter.prevent="confirmRename"
+                @keydown.esc.prevent="cancelRename"
+                @blur="cancelRename"
+              />
               <div
+                v-else
                 data-pencil-name="SideTitleValue"
                 style='box-sizing: border-box; color: #16181D; flex-shrink: 0; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 14px; font-style: normal; font-weight: 600; letter-spacing: 0px; line-height: normal; text-align: left; width: 270px'
               >
-                Introduction to Homography
+                {{ docTitle }}
               </div>
               <svg
                 data-pencil-name="SideTitleEdit"
+                class="sv-focus"
                 data-icon-name="pencil"
                 data-icon-set="lucide"
                 viewBox="0 0 13.99993896484375 14"
                 preserveAspectRatio="xMidYMid meet"
                 xmlns="http://www.w3.org/2000/svg"
+                role="button"
+                tabindex="0"
+                aria-label="重命名文档"
+                data-clickable
                 style="box-sizing: border-box; flex-shrink: 0; height: 14px; width: 14px"
+                @click="startRename"
+                @keydown.enter.prevent="startRename"
+                @keydown.space.prevent="startRename"
               >
                 <path
                   d="M11.00244 0.60156q-0.61523 0.04102-1.14502 0.43408-0.15381 0.09912-4.13232 4.0879-3.9751 3.98877-4.08789 4.1289-0.14014 0.19824-0.23242 0.45801-0.08887 0.25635-0.44776 1.46289-0.35547 1.20313-0.36914 1.28516-0.01367 0.12646 0.02051 0.27343 0.03418 0.14697 0.08887 0.2461 0.05811 0.09912 0.17089 0.20507 0.11279 0.10254 0.2085 0.14698 0.09912 0.04102 0.22559 0.06836 0.12646 0.02734 0.229 0.01367 0.10596-0.01367 1.38086-0.39307l1.24756-0.38964q0.26318-0.08545 0.3623-0.12647l0.01367-0.01367q0.14014-0.07178 0.32129-0.22559 0.25293-0.23926 1.08008-1.04932l2.92578-2.92578q3.98877-3.99219 4.10156-4.14599 0.18115-0.24951 0.29395-0.51612 0.23926-0.60156 0.11963-1.23046-0.11963-0.63232-0.56738-1.10743-0.35205-0.36572-0.81348-0.54687-0.46143-0.18115-0.99463-0.14014z m0.42041 1.17578q0.28027 0.05811 0.50928 0.29053 0.23242 0.229 0.29053 0.50928 0.08203 0.37598-0.08545 0.71435-0.04102 0.08203-0.1333 0.18116-0.08887 0.0957-0.42725 0.44775l-0.50244 0.50244-1.49707-1.49707 0.50244-0.50244q0.35205-0.33838 0.44775-0.42725 0.09912-0.09229 0.18116-0.1333 0.33838-0.16748 0.71435-0.08545z m-4.2417 6.53858q-3.07959 3.07959-3.14453 3.11719-0.06152 0.03418-1.0835 0.34863-1.02197 0.31445-1.03564 0.30762-0.01367-0.00683 0.29395-1.02881 0.30762-1.02197 0.33496-1.06983 0.03076-0.05127 3.12402-3.1582l3.09326-3.09326 1.4834 1.49707-3.06592 3.07959z"
@@ -1160,9 +1228,19 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useToast } from '../composables/useToast'
+import { confirmDestroy } from '../composables/useConfirmDestroy'
+import { useLibraryStore } from '../stores/library'
+import { documentsApi } from '../api'
 
+const route = useRoute()
 const router = useRouter()
+const library = useLibraryStore()
+const { toast } = useToast()
+// 当前文档 id（由库列表 / 搜索进入时带 ?id=）
+const docId = typeof route.query.id === 'string' ? route.query.id : ''
 
 // 返回打开文档时的上一界面（library 列表/搜索、home、review-queue…）
 // 直接进入本页（无应用内上一页）时兜底回 library
@@ -1170,4 +1248,269 @@ function goBack() {
   if (window.history.state && window.history.state.back) router.back()
   else router.push('/library')
 }
+
+// 文档标题 / 收藏：来自 GET /api/documents/:id；无 id 或请求失败时保留设计稿默认文案
+const docTitle = ref('Introduction to Homography')
+const isFav = ref(false)
+
+onMounted(async () => {
+  if (!docId) return
+  try {
+    const doc = await documentsApi.detail(docId)
+    if (!doc) return
+    const name = doc.name || doc.title
+    if (name) {
+      docTitle.value = name
+      document.title = `${name} · SnapVault`
+    }
+    if (typeof doc.fav === 'boolean') isFav.value = doc.fav
+  } catch (e) {
+    /* 失败已由 http 层统一 toast；保留默认文案 */
+  }
+})
+
+// ---- 1. 收藏切换：PUT /api/documents/:id/fav ----
+async function toggleFav() {
+  const next = !isFav.value
+  try {
+    if (docId) await documentsApi.setFav(docId, next)
+    isFav.value = next
+    toast({
+      type: 'info',
+      title: next ? '已加入收藏' : '已取消收藏',
+      message: docTitle.value,
+    })
+  } catch (e) {
+    /* 失败已由 http 层统一 toast */
+  }
+}
+
+// ---- 2. 重命名：标题行内联编辑（Enter 确认 / Esc 取消）----
+const renaming = ref(false)
+const draftTitle = ref('')
+const renameInput = ref(null)
+
+function startRename() {
+  draftTitle.value = docTitle.value
+  renaming.value = true
+  nextTick(() => {
+    const el = renameInput.value
+    if (el) {
+      el.focus()
+      el.select()
+    }
+  })
+}
+function cancelRename() {
+  renaming.value = false
+}
+async function confirmRename() {
+  if (!renaming.value) return
+  renaming.value = false
+  const next = draftTitle.value.trim()
+  if (!next || next === docTitle.value) return
+  try {
+    if (docId) await documentsApi.rename(docId, next)
+    docTitle.value = next
+    document.title = `${next} · SnapVault`
+    toast({ type: 'success', title: '已重命名', message: next })
+  } catch (e) {
+    /* 失败已由 http 层统一 toast */
+  }
+}
+
+// ---- 3. 删除：统一二次确认（confirmDestroy）→ 返回上一页 → 可撤销恢复 ----
+// 删除会真正从 library store 移除该文档（撤销时按原索引插回），
+// 因此从库列表打开时（带 ?id=）返回后列表里不再有它。
+async function askDelete() {
+  moreOpen.value = false
+  let removed = []
+  const ok = await confirmDestroy({
+    title: '删除这份文档？',
+    message: `「${docTitle.value}」将被移入回收站，可在通知中撤销。`,
+    confirmLabel: '删除',
+    onConfirm: async () => {
+      if (!docId) return
+      // 后端删除成功后同步本地列表；失败抛错由 confirmDestroy 统一提示
+      await documentsApi.remove([docId], { silent: true })
+      removed = library.removeByIds([docId])
+    },
+    undoTitle: `已删除「${docTitle.value}」`,
+    undoMessage: '文档已移入回收站',
+    undoAction: () => {
+      library.restore(removed)
+      toast({ type: 'success', title: '已撤销删除', message: docTitle.value })
+    },
+  })
+  if (ok) goBack()
+}
+
+// ---- 4. 更多菜单：导出 PDF / 分享 / 移动… + 删除 ----
+const MORE_ITEMS = [
+  { key: 'export-pdf', label: '导出 PDF' },
+  { key: 'share', label: '分享' },
+  { key: 'move', label: '移动…' },
+  { key: 'delete', label: '删除', danger: true },
+]
+const moreOpen = ref(false)
+const moreIndex = ref(0)
+const moreWrap = ref(null)
+const moreBtn = ref(null)
+const morePanel = ref(null)
+
+function openMore() {
+  moreIndex.value = 0
+  moreOpen.value = true
+  nextTick(() => morePanel.value?.focus())
+}
+function closeMore() {
+  moreOpen.value = false
+  moreBtn.value?.focus()
+}
+function toggleMore() {
+  if (moreOpen.value) closeMore()
+  else openMore()
+}
+function runMore(item) {
+  moreOpen.value = false
+  if (item.key === 'delete') {
+    askDelete()
+    return
+  }
+  toast({ type: 'info', title: '功能待接入后端', message: item.label })
+}
+// ↑↓ 移动高亮、Enter/Space 展开或选中、Esc 关闭（与 Library 排序菜单同一套键盘模型）
+function onMoreKeydown(e) {
+  if (e.key === 'Escape') {
+    if (moreOpen.value) closeMore()
+    return
+  }
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    e.preventDefault()
+    const last = MORE_ITEMS.length - 1
+    if (!moreOpen.value) openMore()
+    moreIndex.value = Math.max(0, Math.min(last, moreIndex.value + (e.key === 'ArrowDown' ? 1 : -1)))
+    return
+  }
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault()
+    if (moreOpen.value) runMore(MORE_ITEMS[moreIndex.value])
+    else openMore()
+  }
+}
+function onMoreDocPointerDown(e) {
+  if (moreOpen.value && moreWrap.value && !moreWrap.value.contains(e.target)) moreOpen.value = false
+}
+watch(moreOpen, (on) => {
+  if (on) document.addEventListener('pointerdown', onMoreDocPointerDown, true)
+  else document.removeEventListener('pointerdown', onMoreDocPointerDown, true)
+})
+onBeforeUnmount(() => document.removeEventListener('pointerdown', onMoreDocPointerDown, true))
 </script>
+
+<style scoped>
+/* ============ 顶栏操作：收藏 / 重命名 / 更多 ============ */
+[data-pencil-name="FavIcon"] {
+  cursor: pointer;
+  transition: transform var(--sv-dur-fast) var(--sv-ease-out);
+}
+/* 未收藏：描边灰星；收藏：--sv-warn 实心（CSS 覆盖 path 上的 fill 属性） */
+[data-pencil-name="FavIcon"] path {
+  fill: none;
+  stroke: var(--sv-ink-3);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  transition:
+    fill var(--sv-dur-fast) var(--sv-ease-out),
+    stroke var(--sv-dur-fast) var(--sv-ease-out);
+}
+[data-pencil-name="FavIcon"].is-fav path {
+  fill: var(--sv-warn);
+  stroke: var(--sv-warn);
+}
+[data-pencil-name="FavIcon"]:hover {
+  transform: scale(1.08);
+}
+[data-pencil-name="FavIcon"]:focus-visible,
+[data-pencil-name="SideTitleEdit"]:focus-visible,
+[data-pencil-name="MoreBtn"]:focus-visible {
+  border-radius: 8px;
+}
+
+[data-pencil-name="SideTitleEdit"] {
+  cursor: pointer;
+  transition: fill var(--sv-dur-fast) var(--sv-ease-out);
+}
+[data-pencil-name="SideTitleEdit"]:hover path {
+  fill: var(--sv-accent);
+}
+
+/* 标题行内联编辑：input 取代文本，占满可用宽度 */
+.side-title-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background-color: transparent;
+  color: var(--sv-ink);
+  font-family: var(--sv-font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: normal;
+}
+.side-title-input::selection {
+  background-color: var(--sv-accent-soft);
+}
+
+/* ============ 更多菜单 ============ */
+.more-wrap {
+  position: relative;
+  z-index: 50;
+}
+.more-btn {
+  cursor: pointer;
+  transition:
+    border-color var(--sv-dur-fast) var(--sv-ease-out),
+    background-color var(--sv-dur-fast) var(--sv-ease-out);
+}
+.more-btn:hover {
+  background-color: var(--sv-surface-2) !important;
+}
+.more-btn.is-open {
+  border-color: var(--sv-accent) !important;
+}
+.more-panel {
+  --rise-from: -4px;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 60;
+  display: none;
+  min-width: 172px;
+  padding: 5px;
+  outline: none;
+}
+.more-panel.is-open {
+  display: flex;
+  animation: sv-rise-in var(--sv-dur-move) var(--sv-ease-out) both;
+}
+.more-item {
+  padding: 8px 10px;
+  font-size: 13px;
+}
+.more-item.is-danger {
+  color: var(--sv-danger);
+}
+.more-item.is-danger:hover,
+.more-item.is-danger.is-active {
+  background-color: var(--sv-danger-soft);
+}
+.more-divider {
+  height: 1px;
+  margin: 4px 2px;
+  background-color: var(--sv-line);
+}
+</style>

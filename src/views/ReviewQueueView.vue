@@ -181,7 +181,22 @@
             data-pencil-name="ReviewList"
             style="align-items: flex-start; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 12px; justify-content: flex-start; width: 100%"
           >
+            <!-- 加载态：3 条骨架行（与 ReviewItem 同构） -->
+            <template v-if="loading">
+              <SkeletonCard v-for="i in 3" :key="i" variant="row" />
+            </template>
+
+            <!-- 空态：当前标签下无匹配文件 -->
+            <EmptyState
+              v-else-if="isEmpty"
+              icon="inbox"
+              title="这个筛选下没有待审文件"
+              description="换一个标签，或先去扫描 / 导入更多文档。"
+              action-text="去扫描 / 导入"
+              @action="router.push('/scan-import')"
+            />
             <div
+              v-if="!loading && !isEmpty"
               data-pencil-name="ReviewItem" data-clickable @click="$router.push('/document-detail')"
               style="align-items: center; background-color: #FFFFFF; border-radius: 14px; border: 1px solid #E3E5EA; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 16px; height: fit-content; justify-content: flex-start; padding: 15px 18px; width: 100%"
             >
@@ -289,6 +304,7 @@
               </div>
             </div>
             <div
+              v-if="!loading && !isEmpty"
               data-pencil-name="ReviewItem" data-clickable @click="$router.push('/document-detail')"
               style="align-items: center; background-color: #FFFFFF; border-radius: 14px; border: 1px solid #E3E5EA; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 16px; height: fit-content; justify-content: flex-start; padding: 15px 18px; width: 100%"
             >
@@ -396,6 +412,7 @@
               </div>
             </div>
             <div
+              v-if="!loading && !isEmpty"
               data-pencil-name="ReviewItem" data-clickable @click="$router.push('/document-detail')"
               style="align-items: center; background-color: #FFFFFF; border-radius: 14px; border: 1px solid #E3E5EA; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 16px; height: fit-content; justify-content: flex-start; padding: 15px 18px; width: 100%"
             >
@@ -504,6 +521,7 @@
               </div>
             </div>
             <div
+              v-if="!loading && !isEmpty"
               data-pencil-name="ReviewItem" data-clickable @click="$router.push('/document-detail')"
               style="align-items: center; background-color: #FFFFFF; border-radius: 14px; border: 1px solid #E3E5EA; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 16px; height: fit-content; justify-content: flex-start; padding: 15px 18px; width: 100%"
             >
@@ -595,6 +613,7 @@
               </div>
             </div>
             <div
+              v-if="!loading && !isEmpty"
               data-pencil-name="ReviewItem" data-clickable @click="$router.push('/document-detail')"
               style="align-items: center; background-color: #FFFFFF; border-radius: 14px; border: 1px solid #E3E5EA; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 16px; height: fit-content; justify-content: flex-start; padding: 15px 18px; width: 100%"
             >
@@ -707,25 +726,51 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
 import { selectReviewFilter } from '@/composables/useReviewFilters'
+import { usePreferencesStore } from '@/stores/preferences'
+import SkeletonCard from '@/components/SkeletonCard.vue'
+import EmptyState from '@/components/EmptyState.vue'
 
 // ReviewFilters 行：All / Paper edges / Text recognition / File location / Processing
-const activeFilter = ref('all') // 默认选中 All（黑底白字）
-const filterFiles = ref([]) // 预留接口返回的「对应文件」，接后端后用于渲染列表
-let ac = null
+// 当前筛选是用户偏好：初始值来自 preferences store（localStorage 持久化），选中即写回
+const prefs = usePreferencesStore()
+const { reviewFilter: activeFilter } = storeToRefs(prefs)
+const filterFiles = ref([]) // 接口返回的「该标签对应文件」，用于渲染列表
 
-// 选中标签 → 交给预留接口取出该标签对应的文件（接后端时仅替换 selectReviewFilter 实现）
+// ---- 列表三态：loading（骨架行）→ empty（无匹配 → EmptyState）→ ready（ReviewItem）----
+// 数据来自 GET /api/review/files?filter=；?empty=1 为演示 / 联调空态的钩子。
+const loading = ref(true)
+const route = useRoute()
+const router = useRouter()
+const isEmpty = computed(
+  () => !loading.value && (route.query.empty === '1' || filterFiles.value.length === 0)
+)
+let ac = null
+let seq = 0
+
+// 选中标签 → 请求该标签对应的文件（竞态用 seq + AbortController 取消旧请求）
 async function selectFilter(key) {
-  activeFilter.value = key
+  prefs.setReviewFilter(key)
   ac?.abort()
   ac = new AbortController()
+  const mine = ++seq
+  loading.value = true
   try {
-    filterFiles.value = await selectReviewFilter(key, { signal: ac.signal })
+    const files = await selectReviewFilter(key, { signal: ac.signal })
+    if (mine !== seq) return
+    filterFiles.value = files
   } catch (e) {
-    if (e?.name !== 'AbortError') filterFiles.value = []
+    if (mine !== seq) return
+    if (e?.kind !== 'abort') filterFiles.value = []
+  } finally {
+    if (mine === seq) loading.value = false
   }
 }
+
+onMounted(() => selectFilter(prefs.reviewFilter))
 onBeforeUnmount(() => ac?.abort())
 </script>
 
@@ -780,5 +825,10 @@ onBeforeUnmount(() => ac?.abort())
 .rf-chip:active [data-pencil-name="ReviewFilterBadgeText"],
 .rf-chip.is-active [data-pencil-name="ReviewFilterBadgeText"] {
   color: #FFFFFF !important;
+}
+
+/* 三态切换：真实条目统一淡入，避免骨架 → 条目的跳变闪烁 */
+[data-pencil-name="ReviewList"] [data-pencil-name="ReviewItem"] {
+  animation: sv-rise-in var(--sv-dur-move) var(--sv-ease-out) both;
 }
 </style>

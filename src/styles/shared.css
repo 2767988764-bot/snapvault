@@ -1,0 +1,211 @@
+/* =========================================================================
+   shared.css — 跨组件复用的通用类与关键帧
+   只承载「多处重复」的样式基座；组件私有差异保留在各自 scoped 块内。
+   变体一律通过 CSS 变量覆盖，避免再复制整块规则。
+   ========================================================================= */
+
+/* ---- 1. 搜索框聚焦态（hero / pulled / search 三页共用） ----
+   可覆盖变量：
+     --sf-dim-z        背景遮罩层级（默认 40；pulled = 30）
+     --sf-raised-z     抬升搜索框层级（默认 50；pulled = 40）
+     --sf-input-size   输入字号（默认 15px；hero = 17px）
+     --sf-input-weight 输入字重（默认 600；hero = 400） */
+.sf-dim {
+  position: absolute;
+  inset: 0;
+  z-index: var(--sf-dim-z, 40);
+  background-color: rgba(12, 12, 14, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.sf-bar {
+  transition:
+    border-color 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.sf-bar.sf-raised {
+  z-index: var(--sf-raised-z, 50) !important;
+  box-shadow: 0 0 0 4px rgba(43, 91, 215, 0.16), 0 16px 34px rgba(22, 24, 29, 0.2);
+}
+.sf-input {
+  box-sizing: border-box;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #16181d;
+  font-family: "Instrument Sans", system-ui, sans-serif;
+  font-size: var(--sf-input-size, 15px);
+  font-weight: var(--sf-input-weight, 600);
+  letter-spacing: 0;
+  line-height: normal;
+  text-align: left;
+}
+.sf-input::placeholder {
+  color: #8a909c;
+  font-weight: 400;
+}
+.sf-clear {
+  cursor: pointer;
+}
+.sf-clear.hidden {
+  visibility: hidden;
+}
+
+/* ---- 2. 玻璃拉条内部件（LibraryView / LibrarySearchView 共用） ---- */
+.tb-shine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-image: linear-gradient(
+    -90deg,
+    #7ea6ff00 0%,
+    #b7d0ffe6 35%,
+    #ffc2dbe6 65%,
+    #ff9ec400 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+.tb-grabber {
+  background-color: #8a909c80;
+  border-radius: 9999px;
+  height: 5px;
+  width: 42px;
+  flex-shrink: 0;
+}
+.tb-hint {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 7px;
+}
+.tb-hint svg {
+  transition: transform 0.3s ease;
+}
+.tb-hint svg.flipped {
+  transform: rotate(180deg);
+}
+.tb-text {
+  font-family: "Instrument Sans", system-ui, sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #59606e;
+  white-space: nowrap;
+}
+
+/* ---- 4. 滑动激活块（TopNav 指示块 / 侧栏分类 / Settings 子导航共用） ----
+   可覆盖变量：
+     --slide-pill-bg      底色（默认 accent-soft；TopNav = accent）
+     --slide-pill-radius  圆角（默认 radius-md；Settings = 9px） */
+.sv-slide-pill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 0;
+  background-color: var(--slide-pill-bg, var(--sv-accent-soft));
+  border-radius: var(--slide-pill-radius, var(--sv-radius-md));
+  pointer-events: none;
+  transition:
+    transform var(--sv-dur-move) ease,
+    width var(--sv-dur-move) ease,
+    height var(--sv-dur-move) ease,
+    opacity var(--sv-dur-icon) ease;
+}
+
+/* ---- 5. 下拉 / 浮层面板容器外框（SortMenu / MoreMenu / Settings Select 共用）---- */
+.sv-panel {
+  flex-direction: column;
+  gap: 2px;
+  background-color: var(--sv-surface);
+  border: 1px solid var(--sv-line);
+  border-radius: var(--sv-radius-md);
+  box-shadow: 0 12px 30px rgba(22, 24, 29, 0.16);
+}
+
+/* ---- 6. 下拉选项行（SortMenu / MoreMenu / Settings Select 共用）----
+   差异化（padding / font-size / gap / color）由各组件 scoped 块覆盖。 */
+.sv-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 9px;
+  border-radius: var(--sv-radius-sm);
+  color: var(--sv-ink);
+  font-family: var(--sv-font-body);
+  font-size: 12.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--sv-dur-fast) var(--sv-ease-out);
+}
+.sv-option:hover {
+  background-color: var(--sv-surface-2);
+}
+.sv-option.is-active {
+  background-color: var(--sv-accent-soft);
+}
+.sv-option.is-selected {
+  color: var(--sv-accent);
+}
+
+/* ---- 7. 键盘焦点环（跨组件统一）---- */
+.sv-focus:focus-visible {
+  outline: 2px solid var(--sv-accent);
+  outline-offset: 2px;
+}
+
+/* ---- 8. 图标 hover 微缩放（150ms 放大 1.05）----
+   给作用域容器加 .sv-icon-hover-scope，其内所有 *Icon / Chevron 生效。 */
+.sv-icon-hover-scope [data-pencil-name$="Icon"],
+.sv-icon-hover-scope [data-pencil-name="Chevron"] {
+  transition: transform var(--sv-dur-icon) ease;
+}
+.sv-icon-hover-scope [data-pencil-name$="Icon"]:hover,
+.sv-icon-hover-scope [data-pencil-name="Chevron"]:hover {
+  transform: scale(1.05);
+}
+
+/* ---- 9. 真实内容入场（淡入 + 上移）----
+   可覆盖变量：
+     --rise-from   起始位移（默认 4px，可为负值）
+     --rise-scale  起始缩放（默认 1） */
+@keyframes sv-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--rise-from, 4px)) scale(var(--rise-scale, 1));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ---- 10. 免测高折叠展开（grid-template-rows 0fr → 1fr）----
+   展开态由各组件自行加 .is-open（或保留各自的触发选择器）。 */
+.sv-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--sv-dur-tree) var(--sv-ease-out);
+}
+.sv-collapse > .sv-clip {
+  min-height: 0;
+  overflow: hidden;
+}
+.sv-collapse.is-open {
+  grid-template-rows: 1fr;
+}
+
+/* ---- 11. 旋转 spinner 关键帧（批次加载 / 按钮 busy 共用）---- */
+@keyframes sv-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

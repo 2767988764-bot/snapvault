@@ -15,7 +15,7 @@
           >
             <!-- 激活背景块：绝对定位，切换时按目标行的 offsetTop 滑移 -->
             <div
-              class="sv-nav-pill"
+              class="sv-nav-pill sv-slide-pill"
               data-pencil-name="SettingsNavPill"
               aria-hidden="true"
               :style="pillStyle"
@@ -650,11 +650,11 @@
                     >
                       <path d="M3.5 5.25 7 8.75l3.5-3.5" />
                     </svg>
-                    <div class="sv-select-panel" data-pencil-name="SelectPanel" role="listbox">
+                    <div class="sv-select-panel sv-panel" data-pencil-name="SelectPanel" role="listbox">
                       <div
                         v-for="opt in SELECT_OPTIONS"
                         :key="opt"
-                        class="sv-select-option"
+                        class="sv-select-option sv-option"
                         :class="{ 'is-selected': opt === selectedOption }"
                         data-pencil-name="SelectOption"
                         role="option"
@@ -927,6 +927,12 @@
                   >
                     Long-running jobs run one at a time.
                   </div>
+                  <div
+                    data-pencil-name="CacheStat"
+                    style='box-sizing: border-box; color: #59606E; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 12.5px; font-style: normal; font-weight: 400; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
+                  >
+                    Cache: {{ cacheLabel }}
+                  </div>
                 </div>
                 <div
                   data-pencil-name="SettingRow"
@@ -1053,22 +1059,15 @@
             multiple
             @change="onPickDir"
           />
-          <div
-            v-if="toast"
-            class="sv-toast"
-            :class="{ 'is-error': toast.error }"
-            data-pencil-name="SettingsToast"
-            role="status"
-          >
-            {{ toast.message }}
-          </div>
         </div>
       </div>
 </template>
 
 <script setup>
-import { ref, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { clearCache, exportAll, backup } from '@/composables/useSettingsActions'
+import { useToast } from '@/composables/useToast'
+import { confirmDestroy } from '@/composables/useConfirmDestroy'
 
 /* ---------------- 1. 左侧子导航：激活背景块滑移 + 高亮 ---------------- */
 const navEl = ref(null)
@@ -1212,32 +1211,85 @@ function onDocKeydown(e) {
 
 /* ---------------- 6. 异步操作按钮 ---------------- */
 const ACTIONS = [
-  { key: 'clear', label: 'Clear cache', run: clearCache, done: 'Cache cleared' },
-  { key: 'export', label: 'Export', run: exportAll, done: 'Export ready' },
-  { key: 'backup', label: 'Backup', run: backup, done: 'Backup complete' },
+  {
+    key: 'clear',
+    label: 'Clear cache',
+    run: clearCache,
+    done: 'Cache cleared',
+    detail: (r) => `Freed ${Math.round(r.freedBytes / 1048576)} MB · ${r.clearedFiles} files`,
+  },
+  {
+    key: 'export',
+    label: 'Export',
+    run: exportAll,
+    done: 'Export ready',
+    detail: (r) => `${r.documents} documents · ${String(r.format).toUpperCase()}`,
+  },
+  {
+    key: 'backup',
+    label: 'Backup',
+    run: backup,
+    done: 'Backup complete',
+    detail: (r) => `${r.snapshot} · ${r.sizeMB} MB`,
+  },
 ]
 const busy = ref([false, false, false])
-const toast = ref(null)
-let toastTimer = null
+const { toast } = useToast()
+
+// 缓存占用（内存模型，仅用于让「清缓存 → 撤销」有真实可恢复的状态；后端接上后换成真实统计）
+const cacheStats = ref({ files: 128, bytes: 41_943_040 })
+const cacheLabel = computed(() =>
+  cacheStats.value.files ? `${Math.round(cacheStats.value.bytes / 1048576)} MB · ${cacheStats.value.files} files` : 'Empty'
+)
+
+// 清缓存是破坏性操作：先二次确认，确认后执行；撤销把缓存统计还原
+async function runClearCache(i) {
+  const action = ACTIONS[i]
+  const beforeLabel = cacheLabel.value // 清空前先记下，供撤销文案使用（清空后 cacheLabel 已是 Empty）
+  let before = null
+  await confirmDestroy({
+    title: 'Clear cache?',
+    message: `Cached previews and thumbnails (${cacheLabel.value}) will be removed from this device.`,
+    confirmLabel: 'Clear cache',
+    failTitle: `${action.label} failed`,
+    onConfirm: async () => {
+      before = { ...cacheStats.value }
+      busy.value[i] = true
+      try {
+        const result = await action.run({})
+        cacheStats.value = { files: 0, bytes: 0 }
+        return result
+      } finally {
+        busy.value[i] = false
+      }
+    },
+    successToast: (r) => ({ title: action.done, message: action.detail(r) }),
+    undoTitle: 'Cache cleared',
+    undoMessage: `Restored ${beforeLabel}`,
+    undoAction: () => {
+      if (before) cacheStats.value = before
+      toast({ type: 'success', title: 'Cache restored', message: cacheLabel.value })
+    },
+  })
+}
 
 async function runAction(i) {
   if (busy.value[i]) return
+  if (ACTIONS[i].key === 'clear') {
+    await runClearCache(i)
+    return
+  }
   busy.value[i] = true
-  toast.value = null
+  const action = ACTIONS[i]
   try {
-    const action = ACTIONS[i]
-    await action.run({})
-    toast.value = { message: action.done, error: false }
+    const result = await action.run({})
+    toast({ type: 'info', title: action.done, message: action.detail(result) })
   } catch (err) {
-    // 失败分支：保留红系提示（例如接口 reject / 中断之外的错误）
+    // 失败分支：红色提示；AbortError 属于主动取消，不提示
     if (err && err.name === 'AbortError') return
-    toast.value = { message: `${ACTIONS[i].label} failed · ${err.message}`, error: true }
+    toast({ type: 'error', title: `${action.label} failed`, message: err.message })
   } finally {
     busy.value[i] = false
-    clearTimeout(toastTimer)
-    toastTimer = setTimeout(() => {
-      toast.value = null
-    }, 2600)
   }
 }
 
@@ -1257,7 +1309,6 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', onDocPointerDown)
   document.removeEventListener('keydown', onDocKeydown)
-  clearTimeout(toastTimer)
 })
 </script>
 
@@ -1268,17 +1319,8 @@ onBeforeUnmount(() => {
   position: relative !important;
 }
 .sv-nav-pill {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  z-index: 0;
-  background-color: var(--sv-accent-soft);
-  border-radius: 9px;
-  pointer-events: none;
-  transition:
-    transform var(--sv-dur-move) var(--sv-ease-out),
-    height var(--sv-dur-move) var(--sv-ease-out);
+  /* 几何/底色/过渡由全局 .sv-slide-pill 承担，仅覆盖圆角为设计稿 9px */
+  --slide-pill-radius: 9px;
 }
 /* 激活背景改由 .sv-nav-pill 承担，覆盖内联底色 */
 [data-pencil-name="SettingsNavRow"] {
@@ -1387,11 +1429,6 @@ onBeforeUnmount(() => {
   border-top-color: var(--sv-accent);
   border-radius: var(--sv-radius-pill);
   animation: sv-spin 800ms linear infinite;
-}
-@keyframes sv-spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 /* ================= 3b. 分段控件（OCR language / Default export format） ================= */
@@ -1504,13 +1541,9 @@ onBeforeUnmount(() => {
   left: 0;
   right: 0;
   z-index: 30;
+  /* flex-direction/gap/底色/边框/圆角由全局 .sv-panel 承担；display 全局未覆盖，保留 */
   display: flex;
-  flex-direction: column;
-  gap: 2px;
   padding: 5px;
-  background-color: var(--sv-surface);
-  border: 1px solid var(--sv-line);
-  border-radius: var(--sv-radius-md);
   box-shadow: 0 12px 28px rgba(22, 24, 29, 0.14);
   opacity: 0;
   transform: translateY(6px);
@@ -1525,15 +1558,11 @@ onBeforeUnmount(() => {
   pointer-events: auto;
 }
 .sv-select-option {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   gap: 8px;
-  padding: 7px 9px;
   border-radius: 7px;
+  /* 设计稿该组选项为常规字重（全局 .sv-option 为 500），此处还原 */
+  font-weight: 400;
   color: var(--sv-ink-2);
-  font-family: var(--sv-font-body);
-  font-size: 12.5px;
   transition:
     background-color var(--sv-dur-fast) ease,
     color var(--sv-dur-fast) ease;
@@ -1547,35 +1576,6 @@ onBeforeUnmount(() => {
 }
 .sv-select-check {
   color: var(--sv-accent);
-}
-
-/* ================= 6. Toast ================= */
-.sv-toast {
-  position: fixed;
-  right: 40px;
-  bottom: 32px;
-  z-index: 200;
-  padding: 11px 16px;
-  background-color: var(--sv-ink);
-  color: var(--sv-surface);
-  font-family: var(--sv-font-body);
-  font-size: 13px;
-  border-radius: var(--sv-radius-md);
-  box-shadow: 0 12px 30px rgba(22, 24, 29, 0.24);
-  animation: sv-toast-in 150ms var(--sv-ease-out) both;
-}
-.sv-toast.is-error {
-  background-color: var(--sv-danger);
-}
-@keyframes sv-toast-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 /* ================= 7. 分区卡片 hover + 折叠区 ================= */
@@ -1594,19 +1594,7 @@ onBeforeUnmount(() => {
 .sv-chevron.is-open {
   transform: rotate(180deg);
 }
-/* 免测高：grid-template-rows 0fr → 1fr */
-.sv-collapse {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows var(--sv-dur-tree) var(--sv-ease-out);
-}
-.sv-collapse > .sv-clip {
-  min-height: 0;
-  overflow: hidden;
-}
-.sv-collapse.is-open {
-  grid-template-rows: 1fr;
-}
+/* 免测高的 0fr→1fr 折叠展开由全局 .sv-collapse/.sv-clip 承担 */
 .sv-collapse-item {
   display: flex;
   flex-direction: column;
@@ -1616,16 +1604,6 @@ onBeforeUnmount(() => {
 }
 .sv-collapse.is-open .sv-collapse-item {
   /* 展开时逐项错峰淡入（每项 +40ms，见元素上的 animationDelay） */
-  animation: sv-fade-in 200ms var(--sv-ease-out) both;
-}
-@keyframes sv-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  animation: sv-rise-in 200ms var(--sv-ease-out) both;
 }
 </style>

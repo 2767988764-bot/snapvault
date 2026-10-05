@@ -167,8 +167,13 @@ const BASE = process.env.BASE_URL || 'http://localhost:5199';
     out.pulled_url = page.url();
     await runPage('pulled');
 
-    // ---- search ----
-    await page.click('.pulled-layer [data-pencil-name="ListBtn"]');
+    // ---- search ----（搜索框内 Enter 进入完整搜索页；GridBtn/ListBtn 已改为网格/列表切换）
+    // 先清空上一步残留的 'homo'：空关键词时 Enter 才进入完整搜索页（有高亮结果时会跳详情）
+    await page.click('.pulled-layer [data-pencil-name="SearchQuery"]');
+    await page.keyboard.press('Control+A');
+    await page.keyboard.press('Backspace');
+    await page.waitForTimeout(200);
+    await page.keyboard.press('Enter');
     await page.waitForTimeout(400);
     out.search_url = page.url();
     await runPage('search');

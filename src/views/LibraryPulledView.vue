@@ -13,1374 +13,96 @@
           >
             <div v-if="focused" class="sf-dim" aria-hidden="true"></div>
             <div
+              ref="resultsEl"
               data-pencil-name="Results"
               style="align-items: flex-start; bottom: 0px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; justify-content: flex-start; left: 0px; overflow-y: auto; padding: 18px 40px 36px 40px; position: absolute; right: 0px; top: 246px; z-index: 0"
               @mousemove="onCardMove" @mouseleave="onCardsLeave"
             >
+              <!-- 加载态：6 张骨架卡（与真实网格同尺寸、同弹性布局） -->
               <div
-                data-pencil-name="PreviewRow"
-                style="align-items: flex-start; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; flex-wrap: wrap; gap: 14px; height: fit-content; justify-content: flex-start; width: 100%"
+                v-if="listLoading"
+                class="rs-grid"
+                data-pencil-name="ResultsSkeleton"
+                aria-hidden="true"
               >
-                <div
-                  data-pencil-name="FilePreview" data-clickable @click="$router.push('/document-detail')"
-                  style="align-items: flex-start; border-radius: 10px; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 200px; gap: 10px; height: fit-content; justify-content: flex-start; max-width: 215px; min-width: 0px"
-                >
-                  <div
-                    data-pencil-name="PreviewMat"
-                    style="align-items: flex-start; background-color: #EEEFF2; border-radius: 12px; border: 1px solid #E3E5EA; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 0px; height: 268px; justify-content: flex-start; overflow: hidden; padding: 4px; position: relative; width: 100%"
-                  >
-                    <div
-                      data-pencil-name="Page"
-                      style="align-items: flex-start; background-color: #FFFFFF; border-radius: 6px; box-shadow: 0px 8px 18px #16181D1F; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 8px; height: 100%; justify-content: flex-start; padding: 18px 14px; position: relative; z-index: 0"
-                    >
-                      <div
-                        data-pencil-name="PageAccent"
-                        style="background-color: #2B5BD7; border-radius: 3px; box-sizing: border-box; flex-shrink: 0; height: 6px; width: 30px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageTitle"
-                        style="background-color: #C2C9D5; border-radius: 4px; box-sizing: border-box; flex-shrink: 0; height: 8px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 70px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 52px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageBlock"
-                        style="background-color: #F1F3F7; border-radius: 4px; box-sizing: border-box; flex-shrink: 0; height: 36px; width: 100%"
-                      ></div>
-                    </div>
-                    <div
-                      data-pencil-name="Check"
-                      style="align-items: center; background-color: #2B5BD7; border-radius: 8px; border: 2px solid #FFFFFF; box-sizing: border-box; display: flex; flex-direction: row; gap: 0px; height: 24px; justify-content: center; left: 177px; position: absolute; top: 10px; width: 24px; z-index: 1"
-                    >
-                      <svg
-                        data-pencil-name="CheckIcon"
-                        data-icon-name="check"
-                        data-icon-set="lucide"
-                        viewBox="0 0 13.99993896484375 14"
-                        preserveAspectRatio="xMidYMid meet"
-                        xmlns="http://www.w3.org/2000/svg"
-                        style="box-sizing: border-box; flex-shrink: 0; height: 14px; width: 14px"
-                      >
-                        <path
-                          d="M11.48096 2.95313q-0.07178 0.01367-0.12989 0.0581-0.05469 0.04102-3.07617 3.06592l-3.0249 3.00781-1.28857-1.28857q-1.28857-1.28516-1.38086-1.32618-0.08887-0.04443-0.22217-0.04443-0.1333 0-0.23242 0.0376-0.0957 0.03418-0.18799 0.11279-0.08887 0.0752-0.1333 0.1709-0.02734 0.07178-0.03418 0.11279-0.00684 0.04102-0.00684 0.14014l0 0.04102q-0.01367 0.11279 0.04102 0.19824 0.07178 0.10938 0.36572 0.40332 0.19482 0.21191 0.96729 0.98096l1.49707 1.48339q0.28027 0.2666 0.38964 0.33838 0.07178 0.05469 0.18457 0.04102l0.09571 0.01367q0.07178 0 0.14013-0.02734 0.08545-0.07178 0.32129-0.28711 0.23926-0.21875 0.79981-0.76221l2.2832-2.2832q2.08496-2.09863 2.7002-2.71387 0.61524-0.61865 0.64599-0.68701 0.04102-0.08545 0.04102-0.23926 0-0.09912-0.00684-0.14014-0.00684-0.04102-0.03418-0.11279-0.04443-0.08203-0.13672-0.16406-0.08887-0.08545-0.18115-0.11963-0.08887-0.0376-0.20849-0.0376-0.11963 0-0.18799 0.02734z"
-                          fill="#FFFFFF"
-                        ></path>
-                      </svg>
-                    </div>
-                  </div>
-                  <div
-                    data-pencil-name="PreviewMeta"
-                    style="align-items: center; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 8px; height: fit-content; justify-content: space-between; width: 100%"
-                  >
-                    <div
-                      data-pencil-name="NameCol"
-                      style="align-items: flex-start; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 2px; height: fit-content; justify-content: flex-start"
-                    >
-                      <div
-                        data-pencil-name="FileName"
-                        style='box-sizing: border-box; color: #16181D; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 12.5px; font-style: normal; font-weight: 600; letter-spacing: 0px; line-height: normal; text-align: left; width: 100%'
-                      >
-                        Introduction to Homography
-                      </div>
-                      <div
-                        data-pencil-name="FileMeta"
-                        style='box-sizing: border-box; color: #8A909C; font-family: "Fragment Mono", system-ui, sans-serif; font-size: 10px; font-style: normal; font-weight: 400; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                      >
-                        18 pages · 3 Sep
-                      </div>
-                    </div>
-                    <div
-                      data-pencil-name="StatusPill"
-                      style="align-items: center; background-color: #E4F2EA; border-radius: 9999px; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 4px; height: fit-content; justify-content: flex-start; padding: 3px 7px; width: fit-content"
-                    >
-                      <svg
-                        data-pencil-name="StatusIcon"
-                        data-icon-name="check"
-                        data-icon-set="lucide"
-                        viewBox="0 0 13.99993896484375 14"
-                        preserveAspectRatio="xMidYMid meet"
-                        xmlns="http://www.w3.org/2000/svg"
-                        style="box-sizing: border-box; flex-shrink: 0; height: 10px; width: 10px"
-                      >
-                        <path
-                          d="M11.48096 2.95313q-0.07178 0.01367-0.12989 0.0581-0.05469 0.04102-3.07617 3.06592l-3.0249 3.00781-1.28857-1.28857q-1.28857-1.28516-1.38086-1.32618-0.08887-0.04443-0.22217-0.04443-0.1333 0-0.23242 0.0376-0.0957 0.03418-0.18799 0.11279-0.08887 0.0752-0.1333 0.1709-0.02734 0.07178-0.03418 0.11279-0.00684 0.04102-0.00684 0.14014l0 0.04102q-0.01367 0.11279 0.04102 0.19824 0.07178 0.10938 0.36572 0.40332 0.19482 0.21191 0.96729 0.98096l1.49707 1.48339q0.28027 0.2666 0.38964 0.33838 0.07178 0.05469 0.18457 0.04102l0.09571 0.01367q0.07178 0 0.14013-0.02734 0.08545-0.07178 0.32129-0.28711 0.23926-0.21875 0.79981-0.76221l2.2832-2.2832q2.08496-2.09863 2.7002-2.71387 0.61524-0.61865 0.64599-0.68701 0.04102-0.08545 0.04102-0.23926 0-0.09912-0.00684-0.14014-0.00684-0.04102-0.03418-0.11279-0.04443-0.08203-0.13672-0.16406-0.08887-0.08545-0.18115-0.11963-0.08887-0.0376-0.20849-0.0376-0.11963 0-0.18799 0.02734z"
-                          fill="#177245"
-                        ></path>
-                      </svg>
-                      <div
-                        data-pencil-name="StatusText"
-                        style='box-sizing: border-box; color: #177245; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 10px; font-style: normal; font-weight: 500; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                      >
-                        Read
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  data-pencil-name="FilePreview" data-clickable @click="$router.push('/document-detail')"
-                  style="align-items: flex-start; border-radius: 10px; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 200px; gap: 10px; height: fit-content; justify-content: flex-start; max-width: 215px; min-width: 0px"
-                >
-                  <div
-                    data-pencil-name="PreviewMat"
-                    style="align-items: flex-start; background-color: #EEEFF2; border-radius: 12px; border: 1px solid #E3E5EA; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 0px; height: 268px; justify-content: flex-start; overflow: hidden; padding: 4px; width: 100%"
-                  >
-                    <div
-                      data-pencil-name="Page"
-                      style="align-items: flex-start; background-color: #FFFFFF; border-radius: 6px; box-shadow: 0px 8px 18px #16181D1F; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 8px; height: 100%; justify-content: flex-start; padding: 18px 14px"
-                    >
-                      <div
-                        data-pencil-name="PageAccent"
-                        style="background-color: #177245; border-radius: 3px; box-sizing: border-box; flex-shrink: 0; height: 6px; width: 30px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageTitle"
-                        style="background-color: #C2C9D5; border-radius: 4px; box-sizing: border-box; flex-shrink: 0; height: 8px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 70px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 52px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageBlock"
-                        style="background-color: #F1F3F7; border-radius: 4px; box-sizing: border-box; flex-shrink: 0; height: 36px; width: 100%"
-                      ></div>
-                    </div>
-                  </div>
-                  <div
-                    data-pencil-name="PreviewMeta"
-                    style="align-items: center; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 8px; height: fit-content; justify-content: space-between; width: 100%"
-                  >
-                    <div
-                      data-pencil-name="NameCol"
-                      style="align-items: flex-start; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 2px; height: fit-content; justify-content: flex-start"
-                    >
-                      <div
-                        data-pencil-name="FileName"
-                        style='box-sizing: border-box; color: #16181D; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 12.5px; font-style: normal; font-weight: 600; letter-spacing: 0px; line-height: normal; text-align: left; width: 100%'
-                      >
-                        Lecture 07 — Camera Calibration
-                      </div>
-                      <div
-                        data-pencil-name="FileMeta"
-                        style='box-sizing: border-box; color: #8A909C; font-family: "Fragment Mono", system-ui, sans-serif; font-size: 10px; font-style: normal; font-weight: 400; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                      >
-                        24 pages · 1 Sep
-                      </div>
-                    </div>
-                    <div
-                      data-pencil-name="StatusPill"
-                      style="align-items: center; background-color: #E4F2EA; border-radius: 9999px; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 4px; height: fit-content; justify-content: flex-start; padding: 3px 7px; width: fit-content"
-                    >
-                      <svg
-                        data-pencil-name="StatusIcon"
-                        data-icon-name="check"
-                        data-icon-set="lucide"
-                        viewBox="0 0 13.99993896484375 14"
-                        preserveAspectRatio="xMidYMid meet"
-                        xmlns="http://www.w3.org/2000/svg"
-                        style="box-sizing: border-box; flex-shrink: 0; height: 10px; width: 10px"
-                      >
-                        <path
-                          d="M11.48096 2.95313q-0.07178 0.01367-0.12989 0.0581-0.05469 0.04102-3.07617 3.06592l-3.0249 3.00781-1.28857-1.28857q-1.28857-1.28516-1.38086-1.32618-0.08887-0.04443-0.22217-0.04443-0.1333 0-0.23242 0.0376-0.0957 0.03418-0.18799 0.11279-0.08887 0.0752-0.1333 0.1709-0.02734 0.07178-0.03418 0.11279-0.00684 0.04102-0.00684 0.14014l0 0.04102q-0.01367 0.11279 0.04102 0.19824 0.07178 0.10938 0.36572 0.40332 0.19482 0.21191 0.96729 0.98096l1.49707 1.48339q0.28027 0.2666 0.38964 0.33838 0.07178 0.05469 0.18457 0.04102l0.09571 0.01367q0.07178 0 0.14013-0.02734 0.08545-0.07178 0.32129-0.28711 0.23926-0.21875 0.79981-0.76221l2.2832-2.2832q2.08496-2.09863 2.7002-2.71387 0.61524-0.61865 0.64599-0.68701 0.04102-0.08545 0.04102-0.23926 0-0.09912-0.00684-0.14014-0.00684-0.04102-0.03418-0.11279-0.04443-0.08203-0.13672-0.16406-0.08887-0.08545-0.18115-0.11963-0.08887-0.0376-0.20849-0.0376-0.11963 0-0.18799 0.02734z"
-                          fill="#177245"
-                        ></path>
-                      </svg>
-                      <div
-                        data-pencil-name="StatusText"
-                        style='box-sizing: border-box; color: #177245; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 10px; font-style: normal; font-weight: 500; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                      >
-                        Read
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  data-pencil-name="FilePreview" data-clickable @click="$router.push('/document-detail')"
-                  style="align-items: flex-start; border-radius: 10px; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 200px; gap: 10px; height: fit-content; justify-content: flex-start; max-width: 215px; min-width: 0px"
-                >
-                  <div
-                    data-pencil-name="PreviewMat"
-                    style="align-items: flex-start; background-color: #EEEFF2; border-radius: 12px; border: 1px solid #E3E5EA; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 0px; height: 268px; justify-content: flex-start; overflow: hidden; padding: 4px; position: relative; width: 100%"
-                  >
-                    <div
-                      data-pencil-name="Page"
-                      style="align-items: flex-start; background-color: #FFFFFF; border-radius: 6px; box-shadow: 0px 8px 18px #16181D1F; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 8px; height: 100%; justify-content: flex-start; padding: 18px 14px; position: relative; z-index: 0"
-                    >
-                      <div
-                        data-pencil-name="PageAccent"
-                        style="background-color: #0E6E8C; border-radius: 3px; box-sizing: border-box; flex-shrink: 0; height: 6px; width: 30px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageTitle"
-                        style="background-color: #C2C9D5; border-radius: 4px; box-sizing: border-box; flex-shrink: 0; height: 8px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 70px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 52px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageBlock"
-                        style="background-color: #F1F3F7; border-radius: 4px; box-sizing: border-box; flex-shrink: 0; height: 36px; width: 100%"
-                      ></div>
-                    </div>
-                    <div
-                      data-pencil-name="Check"
-                      style="align-items: center; background-color: #2B5BD7; border-radius: 8px; border: 2px solid #FFFFFF; box-sizing: border-box; display: flex; flex-direction: row; gap: 0px; height: 24px; justify-content: center; left: 177px; position: absolute; top: 10px; width: 24px; z-index: 1"
-                    >
-                      <svg
-                        data-pencil-name="CheckIcon"
-                        data-icon-name="check"
-                        data-icon-set="lucide"
-                        viewBox="0 0 13.99993896484375 14"
-                        preserveAspectRatio="xMidYMid meet"
-                        xmlns="http://www.w3.org/2000/svg"
-                        style="box-sizing: border-box; flex-shrink: 0; height: 14px; width: 14px"
-                      >
-                        <path
-                          d="M11.48096 2.95313q-0.07178 0.01367-0.12989 0.0581-0.05469 0.04102-3.07617 3.06592l-3.0249 3.00781-1.28857-1.28857q-1.28857-1.28516-1.38086-1.32618-0.08887-0.04443-0.22217-0.04443-0.1333 0-0.23242 0.0376-0.0957 0.03418-0.18799 0.11279-0.08887 0.0752-0.1333 0.1709-0.02734 0.07178-0.03418 0.11279-0.00684 0.04102-0.00684 0.14014l0 0.04102q-0.01367 0.11279 0.04102 0.19824 0.07178 0.10938 0.36572 0.40332 0.19482 0.21191 0.96729 0.98096l1.49707 1.48339q0.28027 0.2666 0.38964 0.33838 0.07178 0.05469 0.18457 0.04102l0.09571 0.01367q0.07178 0 0.14013-0.02734 0.08545-0.07178 0.32129-0.28711 0.23926-0.21875 0.79981-0.76221l2.2832-2.2832q2.08496-2.09863 2.7002-2.71387 0.61524-0.61865 0.64599-0.68701 0.04102-0.08545 0.04102-0.23926 0-0.09912-0.00684-0.14014-0.00684-0.04102-0.03418-0.11279-0.04443-0.08203-0.13672-0.16406-0.08887-0.08545-0.18115-0.11963-0.08887-0.0376-0.20849-0.0376-0.11963 0-0.18799 0.02734z"
-                          fill="#FFFFFF"
-                        ></path>
-                      </svg>
-                    </div>
-                  </div>
-                  <div
-                    data-pencil-name="PreviewMeta"
-                    style="align-items: center; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 8px; height: fit-content; justify-content: space-between; width: 100%"
-                  >
-                    <div
-                      data-pencil-name="NameCol"
-                      style="align-items: flex-start; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 2px; height: fit-content; justify-content: flex-start"
-                    >
-                      <div
-                        data-pencil-name="FileName"
-                        style='box-sizing: border-box; color: #16181D; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 12.5px; font-style: normal; font-weight: 600; letter-spacing: 0px; line-height: normal; text-align: left; width: 100%'
-                      >
-                        Q3 Expense Receipts
-                      </div>
-                      <div
-                        data-pencil-name="FileMeta"
-                        style='box-sizing: border-box; color: #8A909C; font-family: "Fragment Mono", system-ui, sans-serif; font-size: 10px; font-style: normal; font-weight: 400; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                      >
-                        32 pages · 28 Aug
-                      </div>
-                    </div>
-                    <div
-                      data-pencil-name="StatusPill"
-                      style="align-items: center; background-color: #F8EFDD; border-radius: 9999px; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 4px; height: fit-content; justify-content: flex-start; padding: 3px 7px; width: fit-content"
-                    >
-                      <svg
-                        data-pencil-name="StatusIcon"
-                        data-icon-name="tag"
-                        data-icon-set="lucide"
-                        viewBox="0 0 13.99993896484375 14"
-                        preserveAspectRatio="xMidYMid meet"
-                        xmlns="http://www.w3.org/2000/svg"
-                        style="box-sizing: border-box; flex-shrink: 0; height: 10px; width: 10px"
-                      >
-                        <path
-                          d="M2.15674 0.60156q-0.29395 0.02734-0.58789 0.16748-0.29395 0.14014-0.50586 0.36573-0.30762 0.32129-0.43408 0.78271l-0.04102 0.16748 0 2.21143q-0.01367 1.73633 0 2.11572 0.01367 0.37939 0.05469 0.57422 0.08545 0.28027 0.2666 0.5332 0.05811 0.0957 2.65234 2.7002 2.59766 2.60449 2.75147 2.74462 0.51953 0.42041 1.18945 0.44092 0.67334 0.02051 1.24756-0.37256 0.12646-0.08203 2.15674-2.1123 2.03027-2.03027 2.1123-2.1499 0.08545-0.11963 0.15381-0.22901 0.28027-0.5332 0.22217-1.1416-0.05469-0.6084-0.43067-1.08691-0.09912-0.10938-2.72412-2.72754-2.625-2.61816-2.75146-2.70361-0.37598-0.23926-0.82373-0.28028-0.18457-0.02734-2.25586-0.02734-2.07129 0-2.25244 0.02734z m4.604 1.20313q0.07178 0.04443 0.5127 0.47168 0.44092 0.42725 2.21826 2.20459 1.82178 1.81836 2.2251 2.23193 0.40674 0.41357 0.43408 0.49561 0.18457 0.35205 0.01367 0.71435-0.02734 0.08545-0.32812 0.39307-0.30078 0.30762-1.71583 1.73633-2.01318 2.0166-2.08496 2.05761-0.16748 0.12646-0.42041 0.1333-0.25293 0.00684-0.44775-0.10595-0.08203-0.05469-2.70019-2.65918-1.78076-1.77734-2.20118-2.21143-0.41699-0.43408-0.46142-0.50586l-0.04102-0.0957 0-4.46729 0.04102-0.09912q0.08545-0.18115 0.22558-0.24951l0.01368-0.01367q0.06836-0.04443 0.16748-0.05811 0.14014-0.01367 0.57421-0.02734l3.8794 0.01367 0.0957 0.04102z m-2.61816 1.72265q-0.22217 0.05811-0.38965 0.23243-0.16748 0.17432-0.22559 0.3999-0.08203 0.32129 0.07178 0.6289 0.04102 0.08203 0.16065 0.20166 0.11963 0.11963 0.20166 0.16065 0.19824 0.09912 0.41357 0.09912 0.21533 0 0.41357-0.09912 0.08203-0.04102 0.20166-0.16065 0.11963-0.11963 0.16065-0.20166 0.12646-0.25293 0.09228-0.52636-0.03418-0.27344-0.23242-0.46826-0.26318-0.29395-0.6289-0.29395-0.11279 0-0.23926 0.02734z"
-                          fill="#8A5A00"
-                        ></path>
-                      </svg>
-                      <div
-                        data-pencil-name="StatusText"
-                        style='box-sizing: border-box; color: #8A5A00; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 10px; font-style: normal; font-weight: 500; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                      >
-                        To tag
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  data-pencil-name="FilePreview" data-clickable @click="$router.push('/document-detail')"
-                  style="align-items: flex-start; border-radius: 10px; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 200px; gap: 10px; height: fit-content; justify-content: flex-start; max-width: 215px; min-width: 0px"
-                >
-                  <div
-                    data-pencil-name="PreviewMat"
-                    style="align-items: flex-start; background-color: #EEEFF2; border-radius: 12px; border: 1px solid #E3E5EA; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 0px; height: 268px; justify-content: flex-start; overflow: hidden; padding: 4px; position: relative; width: 100%"
-                  >
-                    <div
-                      data-pencil-name="Page"
-                      style="align-items: flex-start; background-color: #FFFFFF; border-radius: 6px; box-shadow: 0px 8px 18px #16181D1F; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 8px; height: 100%; justify-content: flex-start; padding: 18px 14px; position: relative; z-index: 0"
-                    >
-                      <div
-                        data-pencil-name="PageAccent"
-                        style="background-color: #6B4FBB; border-radius: 3px; box-sizing: border-box; flex-shrink: 0; height: 6px; width: 30px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageTitle"
-                        style="background-color: #C2C9D5; border-radius: 4px; box-sizing: border-box; flex-shrink: 0; height: 8px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 70px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 52px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageBlock"
-                        style="background-color: #F1F3F7; border-radius: 4px; box-sizing: border-box; flex-shrink: 0; height: 36px; width: 100%"
-                      ></div>
-                    </div>
-                    <div
-                      data-pencil-name="Check"
-                      style="align-items: center; background-color: #2B5BD7; border-radius: 8px; border: 2px solid #FFFFFF; box-sizing: border-box; display: flex; flex-direction: row; gap: 0px; height: 24px; justify-content: center; left: 177px; position: absolute; top: 10px; width: 24px; z-index: 1"
-                    >
-                      <svg
-                        data-pencil-name="CheckIcon"
-                        data-icon-name="check"
-                        data-icon-set="lucide"
-                        viewBox="0 0 13.99993896484375 14"
-                        preserveAspectRatio="xMidYMid meet"
-                        xmlns="http://www.w3.org/2000/svg"
-                        style="box-sizing: border-box; flex-shrink: 0; height: 14px; width: 14px"
-                      >
-                        <path
-                          d="M11.48096 2.95313q-0.07178 0.01367-0.12989 0.0581-0.05469 0.04102-3.07617 3.06592l-3.0249 3.00781-1.28857-1.28857q-1.28857-1.28516-1.38086-1.32618-0.08887-0.04443-0.22217-0.04443-0.1333 0-0.23242 0.0376-0.0957 0.03418-0.18799 0.11279-0.08887 0.0752-0.1333 0.1709-0.02734 0.07178-0.03418 0.11279-0.00684 0.04102-0.00684 0.14014l0 0.04102q-0.01367 0.11279 0.04102 0.19824 0.07178 0.10938 0.36572 0.40332 0.19482 0.21191 0.96729 0.98096l1.49707 1.48339q0.28027 0.2666 0.38964 0.33838 0.07178 0.05469 0.18457 0.04102l0.09571 0.01367q0.07178 0 0.14013-0.02734 0.08545-0.07178 0.32129-0.28711 0.23926-0.21875 0.79981-0.76221l2.2832-2.2832q2.08496-2.09863 2.7002-2.71387 0.61524-0.61865 0.64599-0.68701 0.04102-0.08545 0.04102-0.23926 0-0.09912-0.00684-0.14014-0.00684-0.04102-0.03418-0.11279-0.04443-0.08203-0.13672-0.16406-0.08887-0.08545-0.18115-0.11963-0.08887-0.0376-0.20849-0.0376-0.11963 0-0.18799 0.02734z"
-                          fill="#FFFFFF"
-                        ></path>
-                      </svg>
-                    </div>
-                  </div>
-                  <div
-                    data-pencil-name="PreviewMeta"
-                    style="align-items: center; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 8px; height: fit-content; justify-content: space-between; width: 100%"
-                  >
-                    <div
-                      data-pencil-name="NameCol"
-                      style="align-items: flex-start; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 2px; height: fit-content; justify-content: flex-start"
-                    >
-                      <div
-                        data-pencil-name="FileName"
-                        style='box-sizing: border-box; color: #16181D; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 12.5px; font-style: normal; font-weight: 600; letter-spacing: 0px; line-height: normal; text-align: left; width: 100%'
-                      >
-                        Field Notes — Rome Trip
-                      </div>
-                      <div
-                        data-pencil-name="FileMeta"
-                        style='box-sizing: border-box; color: #8A909C; font-family: "Fragment Mono", system-ui, sans-serif; font-size: 10px; font-style: normal; font-weight: 400; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                      >
-                        12 pages · 21 Aug
-                      </div>
-                    </div>
-                    <div
-                      data-pencil-name="StatusPill"
-                      style="align-items: center; background-color: #F8EFDD; border-radius: 9999px; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 4px; height: fit-content; justify-content: flex-start; padding: 3px 7px; width: fit-content"
-                    >
-                      <svg
-                        data-pencil-name="StatusIcon"
-                        data-icon-name="tag"
-                        data-icon-set="lucide"
-                        viewBox="0 0 13.99993896484375 14"
-                        preserveAspectRatio="xMidYMid meet"
-                        xmlns="http://www.w3.org/2000/svg"
-                        style="box-sizing: border-box; flex-shrink: 0; height: 10px; width: 10px"
-                      >
-                        <path
-                          d="M2.15674 0.60156q-0.29395 0.02734-0.58789 0.16748-0.29395 0.14014-0.50586 0.36573-0.30762 0.32129-0.43408 0.78271l-0.04102 0.16748 0 2.21143q-0.01367 1.73633 0 2.11572 0.01367 0.37939 0.05469 0.57422 0.08545 0.28027 0.2666 0.5332 0.05811 0.0957 2.65234 2.7002 2.59766 2.60449 2.75147 2.74462 0.51953 0.42041 1.18945 0.44092 0.67334 0.02051 1.24756-0.37256 0.12646-0.08203 2.15674-2.1123 2.03027-2.03027 2.1123-2.1499 0.08545-0.11963 0.15381-0.22901 0.28027-0.5332 0.22217-1.1416-0.05469-0.6084-0.43067-1.08691-0.09912-0.10938-2.72412-2.72754-2.625-2.61816-2.75146-2.70361-0.37598-0.23926-0.82373-0.28028-0.18457-0.02734-2.25586-0.02734-2.07129 0-2.25244 0.02734z m4.604 1.20313q0.07178 0.04443 0.5127 0.47168 0.44092 0.42725 2.21826 2.20459 1.82178 1.81836 2.2251 2.23193 0.40674 0.41357 0.43408 0.49561 0.18457 0.35205 0.01367 0.71435-0.02734 0.08545-0.32812 0.39307-0.30078 0.30762-1.71583 1.73633-2.01318 2.0166-2.08496 2.05761-0.16748 0.12646-0.42041 0.1333-0.25293 0.00684-0.44775-0.10595-0.08203-0.05469-2.70019-2.65918-1.78076-1.77734-2.20118-2.21143-0.41699-0.43408-0.46142-0.50586l-0.04102-0.0957 0-4.46729 0.04102-0.09912q0.08545-0.18115 0.22558-0.24951l0.01368-0.01367q0.06836-0.04443 0.16748-0.05811 0.14014-0.01367 0.57421-0.02734l3.8794 0.01367 0.0957 0.04102z m-2.61816 1.72265q-0.22217 0.05811-0.38965 0.23243-0.16748 0.17432-0.22559 0.3999-0.08203 0.32129 0.07178 0.6289 0.04102 0.08203 0.16065 0.20166 0.11963 0.11963 0.20166 0.16065 0.19824 0.09912 0.41357 0.09912 0.21533 0 0.41357-0.09912 0.08203-0.04102 0.20166-0.16065 0.11963-0.11963 0.16065-0.20166 0.12646-0.25293 0.09228-0.52636-0.03418-0.27344-0.23242-0.46826-0.26318-0.29395-0.6289-0.29395-0.11279 0-0.23926 0.02734z"
-                          fill="#8A5A00"
-                        ></path>
-                      </svg>
-                      <div
-                        data-pencil-name="StatusText"
-                        style='box-sizing: border-box; color: #8A5A00; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 10px; font-style: normal; font-weight: 500; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                      >
-                        To tag
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  data-pencil-name="FilePreview" data-clickable @click="$router.push('/document-detail')"
-                  style="align-items: flex-start; border-radius: 10px; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 200px; gap: 10px; height: fit-content; justify-content: flex-start; max-width: 215px; min-width: 0px"
-                >
-                  <div
-                    data-pencil-name="PreviewMat"
-                    style="align-items: flex-start; background-color: #EEEFF2; border-radius: 12px; border: 1px solid #E3E5EA; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 0px; height: 268px; justify-content: flex-start; overflow: hidden; padding: 4px; width: 100%"
-                  >
-                    <div
-                      data-pencil-name="Page"
-                      style="align-items: flex-start; background-color: #FFFFFF; border-radius: 6px; box-shadow: 0px 8px 18px #16181D1F; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 8px; height: 100%; justify-content: flex-start; padding: 18px 14px"
-                    >
-                      <div
-                        data-pencil-name="PageAccent"
-                        style="background-color: #6B4FBB; border-radius: 3px; box-sizing: border-box; flex-shrink: 0; height: 6px; width: 30px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageTitle"
-                        style="background-color: #C2C9D5; border-radius: 4px; box-sizing: border-box; flex-shrink: 0; height: 8px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 70px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 52px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageBlock"
-                        style="background-color: #F1F3F7; border-radius: 4px; box-sizing: border-box; flex-shrink: 0; height: 36px; width: 100%"
-                      ></div>
-                    </div>
-                  </div>
-                  <div
-                    data-pencil-name="PreviewMeta"
-                    style="align-items: center; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 8px; height: fit-content; justify-content: space-between; width: 100%"
-                  >
-                    <div
-                      data-pencil-name="NameCol"
-                      style="align-items: flex-start; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 2px; height: fit-content; justify-content: flex-start"
-                    >
-                      <div
-                        data-pencil-name="FileName"
-                        style='box-sizing: border-box; color: #16181D; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 12.5px; font-style: normal; font-weight: 600; letter-spacing: 0px; line-height: normal; text-align: left; width: 100%'
-                      >
-                        Design System Audit
-                      </div>
-                      <div
-                        data-pencil-name="FileMeta"
-                        style='box-sizing: border-box; color: #8A909C; font-family: "Fragment Mono", system-ui, sans-serif; font-size: 10px; font-style: normal; font-weight: 400; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                      >
-                        9 pages · 17 Aug
-                      </div>
-                    </div>
-                    <div
-                      data-pencil-name="StatusPill"
-                      style="align-items: center; background-color: #E4F2EA; border-radius: 9999px; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 4px; height: fit-content; justify-content: flex-start; padding: 3px 7px; width: fit-content"
-                    >
-                      <svg
-                        data-pencil-name="StatusIcon"
-                        data-icon-name="check"
-                        data-icon-set="lucide"
-                        viewBox="0 0 13.99993896484375 14"
-                        preserveAspectRatio="xMidYMid meet"
-                        xmlns="http://www.w3.org/2000/svg"
-                        style="box-sizing: border-box; flex-shrink: 0; height: 10px; width: 10px"
-                      >
-                        <path
-                          d="M11.48096 2.95313q-0.07178 0.01367-0.12989 0.0581-0.05469 0.04102-3.07617 3.06592l-3.0249 3.00781-1.28857-1.28857q-1.28857-1.28516-1.38086-1.32618-0.08887-0.04443-0.22217-0.04443-0.1333 0-0.23242 0.0376-0.0957 0.03418-0.18799 0.11279-0.08887 0.0752-0.1333 0.1709-0.02734 0.07178-0.03418 0.11279-0.00684 0.04102-0.00684 0.14014l0 0.04102q-0.01367 0.11279 0.04102 0.19824 0.07178 0.10938 0.36572 0.40332 0.19482 0.21191 0.96729 0.98096l1.49707 1.48339q0.28027 0.2666 0.38964 0.33838 0.07178 0.05469 0.18457 0.04102l0.09571 0.01367q0.07178 0 0.14013-0.02734 0.08545-0.07178 0.32129-0.28711 0.23926-0.21875 0.79981-0.76221l2.2832-2.2832q2.08496-2.09863 2.7002-2.71387 0.61524-0.61865 0.64599-0.68701 0.04102-0.08545 0.04102-0.23926 0-0.09912-0.00684-0.14014-0.00684-0.04102-0.03418-0.11279-0.04443-0.08203-0.13672-0.16406-0.08887-0.08545-0.18115-0.11963-0.08887-0.0376-0.20849-0.0376-0.11963 0-0.18799 0.02734z"
-                          fill="#177245"
-                        ></path>
-                      </svg>
-                      <div
-                        data-pencil-name="StatusText"
-                        style='box-sizing: border-box; color: #177245; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 10px; font-style: normal; font-weight: 500; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                      >
-                        Read
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  data-pencil-name="FilePreview" data-clickable @click="$router.push('/document-detail')"
-                  style="align-items: flex-start; border-radius: 10px; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 200px; gap: 10px; height: fit-content; justify-content: flex-start; max-width: 215px; min-width: 0px"
-                >
-                  <div
-                    data-pencil-name="PreviewMat"
-                    style="align-items: flex-start; background-color: #EEEFF2; border-radius: 12px; border: 1px solid #E3E5EA; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 0px; height: 268px; justify-content: flex-start; overflow: hidden; padding: 4px; width: 100%"
-                  >
-                    <div
-                      data-pencil-name="Page"
-                      style="align-items: flex-start; background-color: #FFFFFF; border-radius: 6px; box-shadow: 0px 8px 18px #16181D1F; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 8px; height: 100%; justify-content: flex-start; padding: 18px 14px"
-                    >
-                      <div
-                        data-pencil-name="PageAccent"
-                        style="background-color: #59606E; border-radius: 3px; box-sizing: border-box; flex-shrink: 0; height: 6px; width: 30px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageTitle"
-                        style="background-color: #C2C9D5; border-radius: 4px; box-sizing: border-box; flex-shrink: 0; height: 8px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 70px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 52px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageBlock"
-                        style="background-color: #F1F3F7; border-radius: 4px; box-sizing: border-box; flex-shrink: 0; height: 36px; width: 100%"
-                      ></div>
-                    </div>
-                  </div>
-                  <div
-                    data-pencil-name="PreviewMeta"
-                    style="align-items: center; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 8px; height: fit-content; justify-content: space-between; width: 100%"
-                  >
-                    <div
-                      data-pencil-name="NameCol"
-                      style="align-items: flex-start; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 2px; height: fit-content; justify-content: flex-start"
-                    >
-                      <div
-                        data-pencil-name="FileName"
-                        style='box-sizing: border-box; color: #16181D; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 12.5px; font-style: normal; font-weight: 600; letter-spacing: 0px; line-height: normal; text-align: left; width: 100%'
-                      >
-                        Lease Agreement 2025
-                      </div>
-                      <div
-                        data-pencil-name="FileMeta"
-                        style='box-sizing: border-box; color: #8A909C; font-family: "Fragment Mono", system-ui, sans-serif; font-size: 10px; font-style: normal; font-weight: 400; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                      >
-                        6 pages · 12 Aug
-                      </div>
-                    </div>
-                    <div
-                      data-pencil-name="StatusPill"
-                      style="align-items: center; background-color: #E7EDFC; border-radius: 9999px; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 4px; height: fit-content; justify-content: flex-start; padding: 3px 7px; width: fit-content"
-                    >
-                      <svg
-                        data-pencil-name="StatusIcon"
-                        data-icon-name="pen-line"
-                        data-icon-set="lucide"
-                        viewBox="0 0 13.99993896484375 14"
-                        preserveAspectRatio="xMidYMid meet"
-                        xmlns="http://www.w3.org/2000/svg"
-                        style="box-sizing: border-box; flex-shrink: 0; height: 10px; width: 10px"
-                      >
-                        <path
-                          d="M11.00244 0.60156q-0.61523 0.04102-1.14502 0.43408-0.15381 0.09912-4.13232 4.0879-3.9751 3.98877-4.08789 4.1289-0.14014 0.19824-0.23242 0.45801-0.08887 0.25635-0.44776 1.46289-0.35547 1.20313-0.36914 1.28516-0.01367 0.12646 0.02051 0.27343 0.03418 0.14697 0.08887 0.2461 0.05811 0.09912 0.17089 0.20507 0.11279 0.10254 0.2085 0.14698 0.09912 0.04102 0.22559 0.06836 0.12646 0.02734 0.229 0.01367 0.10596-0.01367 1.38086-0.39307l1.24756-0.38964q0.26318-0.08545 0.3623-0.12647l0.01367-0.01367q0.14014-0.07178 0.32129-0.22559 0.25293-0.23926 1.08008-1.04932l2.92578-2.92578q3.98877-3.99219 4.10156-4.14599 0.18115-0.24951 0.29395-0.51612 0.23926-0.60156 0.11963-1.23046-0.11963-0.63232-0.56738-1.10743-0.35205-0.36572-0.81348-0.54687-0.46143-0.18115-0.99463-0.14014z m0.42041 1.17578q0.28027 0.05811 0.50928 0.29053 0.23242 0.229 0.29053 0.50928 0.08203 0.37598-0.08545 0.71435-0.04102 0.06836-0.2085 0.24952-0.23926 0.25293-1.06641 1.09375l-2.77197 2.77197q-3.98877 3.98877-4.05371 4.02637-0.06152 0.03418-1.0835 0.34863-1.02197 0.31445-1.03564 0.30078-0.01367-0.01367 0.30078-1.03564 0.31445-1.02197 0.34863-1.0835 0.0376-0.06494 4.02637-4.05371l2.77197-2.7583q0.84082-0.84082 1.09375-1.08008 0.18115-0.16748 0.24952-0.2085 0.33838-0.16748 0.71435-0.08545z m-4.04346 9.92578q-0.09912 0.04443-0.1914 0.12989-0.08887 0.08203-0.12647 0.16064-0.03418 0.0752-0.04101 0.11621-0.00684 0.04102-0.00684 0.14014 0 0.15381 0.04102 0.25293 0.11279 0.2085 0.3247 0.29394l0.09571 0.02735 4.94238 0 0.08545-0.04102q0.06836-0.04443 0.15039-0.12646 0.08545-0.08545 0.12646-0.16065 0.04443-0.07861 0.04444-0.24609 0-0.16748-0.04102-0.25293-0.09912-0.16748-0.28027-0.2666l-0.08545-0.05469-4.64844 0q-0.33496 0.01367-0.38965 0.02734z"
-                          fill="#2B5BD7"
-                        ></path>
-                      </svg>
-                      <div
-                        data-pencil-name="StatusText"
-                        style='box-sizing: border-box; color: #2B5BD7; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 10px; font-style: normal; font-weight: 500; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                      >
-                        Signed
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <SkeletonCard v-for="i in 6" :key="i" variant="card" />
               </div>
-              <div
-                data-pencil-name="PreviewRow"
-                style="align-items: flex-start; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; flex-wrap: wrap; gap: 14px; height: fit-content; justify-content: flex-start; width: 100%"
-              >
-                <div
-                  data-pencil-name="FilePreview" data-clickable @click="$router.push('/document-detail')"
-                  style="align-items: flex-start; border-radius: 10px; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 200px; gap: 10px; height: fit-content; justify-content: flex-start; max-width: 215px; min-width: 0px"
-                >
-                  <div
-                    data-pencil-name="PreviewMat"
-                    style="align-items: flex-start; background-color: #EEEFF2; border-radius: 12px; border: 1px solid #E3E5EA; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 0px; height: 268px; justify-content: flex-start; overflow: hidden; padding: 4px; width: 100%"
-                  >
-                    <div
-                      data-pencil-name="Page"
-                      style="align-items: flex-start; background-color: #FFFFFF; border-radius: 6px; box-shadow: 0px 8px 18px #16181D1F; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 8px; height: 100%; justify-content: flex-start; padding: 18px 14px"
-                    >
-                      <div
-                        data-pencil-name="PageAccent"
-                        style="background-color: #177245; border-radius: 3px; box-sizing: border-box; flex-shrink: 0; height: 6px; width: 30px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageTitle"
-                        style="background-color: #C2C9D5; border-radius: 4px; box-sizing: border-box; flex-shrink: 0; height: 8px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 70px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 52px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageBlock"
-                        style="background-color: #F1F3F7; border-radius: 4px; box-sizing: border-box; flex-shrink: 0; height: 36px; width: 100%"
-                      ></div>
-                    </div>
-                  </div>
-                  <div
-                    data-pencil-name="PreviewMeta"
-                    style="align-items: center; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 8px; height: fit-content; justify-content: space-between; width: 100%"
-                  >
-                    <div
-                      data-pencil-name="NameCol"
-                      style="align-items: flex-start; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 2px; height: fit-content; justify-content: flex-start"
-                    >
-                      <div
-                        data-pencil-name="FileName"
-                        style='box-sizing: border-box; color: #16181D; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 12.5px; font-style: normal; font-weight: 600; letter-spacing: 0px; line-height: normal; text-align: left; width: 100%'
-                      >
-                        Statistics Cheat Sheet
-                      </div>
-                      <div
-                        data-pencil-name="FileMeta"
-                        style='box-sizing: border-box; color: #8A909C; font-family: "Fragment Mono", system-ui, sans-serif; font-size: 10px; font-style: normal; font-weight: 400; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                      >
-                        4 pages · 8 Aug
-                      </div>
-                    </div>
-                    <div
-                      data-pencil-name="StatusPill"
-                      style="align-items: center; background-color: #E4F2EA; border-radius: 9999px; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 4px; height: fit-content; justify-content: flex-start; padding: 3px 7px; width: fit-content"
-                    >
-                      <svg
-                        data-pencil-name="StatusIcon"
-                        data-icon-name="check"
-                        data-icon-set="lucide"
-                        viewBox="0 0 13.99993896484375 14"
-                        preserveAspectRatio="xMidYMid meet"
-                        xmlns="http://www.w3.org/2000/svg"
-                        style="box-sizing: border-box; flex-shrink: 0; height: 10px; width: 10px"
-                      >
-                        <path
-                          d="M11.48096 2.95313q-0.07178 0.01367-0.12989 0.0581-0.05469 0.04102-3.07617 3.06592l-3.0249 3.00781-1.28857-1.28857q-1.28857-1.28516-1.38086-1.32618-0.08887-0.04443-0.22217-0.04443-0.1333 0-0.23242 0.0376-0.0957 0.03418-0.18799 0.11279-0.08887 0.0752-0.1333 0.1709-0.02734 0.07178-0.03418 0.11279-0.00684 0.04102-0.00684 0.14014l0 0.04102q-0.01367 0.11279 0.04102 0.19824 0.07178 0.10938 0.36572 0.40332 0.19482 0.21191 0.96729 0.98096l1.49707 1.48339q0.28027 0.2666 0.38964 0.33838 0.07178 0.05469 0.18457 0.04102l0.09571 0.01367q0.07178 0 0.14013-0.02734 0.08545-0.07178 0.32129-0.28711 0.23926-0.21875 0.79981-0.76221l2.2832-2.2832q2.08496-2.09863 2.7002-2.71387 0.61524-0.61865 0.64599-0.68701 0.04102-0.08545 0.04102-0.23926 0-0.09912-0.00684-0.14014-0.00684-0.04102-0.03418-0.11279-0.04443-0.08203-0.13672-0.16406-0.08887-0.08545-0.18115-0.11963-0.08887-0.0376-0.20849-0.0376-0.11963 0-0.18799 0.02734z"
-                          fill="#177245"
-                        ></path>
-                      </svg>
-                      <div
-                        data-pencil-name="StatusText"
-                        style='box-sizing: border-box; color: #177245; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 10px; font-style: normal; font-weight: 500; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                      >
-                        Read
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  data-pencil-name="FilePreview" data-clickable @click="$router.push('/document-detail')"
-                  style="align-items: flex-start; border-radius: 10px; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 200px; gap: 10px; height: fit-content; justify-content: flex-start; max-width: 215px; min-width: 0px"
-                >
-                  <div
-                    data-pencil-name="PreviewMat"
-                    style="align-items: flex-start; background-color: #EEEFF2; border-radius: 12px; border: 1px solid #E3E5EA; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 0px; height: 268px; justify-content: flex-start; overflow: hidden; padding: 4px; width: 100%"
-                  >
-                    <div
-                      data-pencil-name="Page"
-                      style="align-items: flex-start; background-color: #FFFFFF; border-radius: 6px; box-shadow: 0px 8px 18px #16181D1F; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 8px; height: 100%; justify-content: flex-start; padding: 18px 14px"
-                    >
-                      <div
-                        data-pencil-name="PageAccent"
-                        style="background-color: #B3261E; border-radius: 3px; box-sizing: border-box; flex-shrink: 0; height: 6px; width: 30px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageTitle"
-                        style="background-color: #C2C9D5; border-radius: 4px; box-sizing: border-box; flex-shrink: 0; height: 8px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 70px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 52px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageBlock"
-                        style="background-color: #F1F3F7; border-radius: 4px; box-sizing: border-box; flex-shrink: 0; height: 36px; width: 100%"
-                      ></div>
-                    </div>
-                  </div>
-                  <div
-                    data-pencil-name="PreviewMeta"
-                    style="align-items: center; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 8px; height: fit-content; justify-content: space-between; width: 100%"
-                  >
-                    <div
-                      data-pencil-name="NameCol"
-                      style="align-items: flex-start; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 2px; height: fit-content; justify-content: flex-start"
-                    >
-                      <div
-                        data-pencil-name="FileName"
-                        style='box-sizing: border-box; color: #16181D; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 12.5px; font-style: normal; font-weight: 600; letter-spacing: 0px; line-height: normal; text-align: left; width: 100%'
-                      >
-                        Passport &amp; Visa Copies
-                      </div>
-                      <div
-                        data-pencil-name="FileMeta"
-                        style='box-sizing: border-box; color: #8A909C; font-family: "Fragment Mono", system-ui, sans-serif; font-size: 10px; font-style: normal; font-weight: 400; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                      >
-                        3 pages · 3 Aug
-                      </div>
-                    </div>
-                    <div
-                      data-pencil-name="StatusPill"
-                      style="align-items: center; background-color: #FBE9E8; border-radius: 9999px; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 4px; height: fit-content; justify-content: flex-start; padding: 3px 7px; width: fit-content"
-                    >
-                      <svg
-                        data-pencil-name="StatusIcon"
-                        data-icon-name="lock"
-                        data-icon-set="lucide"
-                        viewBox="0 0 13.99993896484375 14"
-                        preserveAspectRatio="xMidYMid meet"
-                        xmlns="http://www.w3.org/2000/svg"
-                        style="box-sizing: border-box; flex-shrink: 0; height: 10px; width: 10px"
-                      >
-                        <path
-                          d="M6.77441 0.60156q-0.72803 0.02734-1.38769 0.3794-0.65625 0.34863-1.12451 0.92285-0.46826 0.57422-0.64942 1.28857l0 0.01367q-0.07178 0.29395-0.08545 0.48536-0.01367 0.18799-0.02734 1.02539l0 1.10742-0.2666 0q-0.40674 0-0.63916 0.04443-0.229 0.04102-0.45117 0.15039-0.32471 0.16748-0.56397 0.44776-0.23584 0.28027-0.34863 0.64599l-0.05469 0.15381 0 4.7168 0.05469 0.15381q0.15723 0.51953 0.56055 0.86132 0.40674 0.3418 0.93994 0.39991 0.14014 0.02734 4.26904 0.02734 4.12891 0 4.26904-0.02734 0.30762-0.02734 0.58789-0.16748 0.32471-0.15381 0.56055-0.44092 0.23926-0.28711 0.35205-0.65283l0.05469-0.15381 0-4.7168-0.05469-0.15381q-0.11279-0.36572-0.35205-0.64599-0.23584-0.28027-0.56055-0.44776-0.22217-0.10938-0.45459-0.15039-0.229-0.04443-0.63574-0.04443l-0.2666 0 0-1.13477q-0.01367-0.81006-0.02734-0.99804-0.01367-0.19141-0.08545-0.47168l0-0.02735q-0.18115-0.71436-0.66651-1.30224-0.48193-0.58789-1.15185-0.93653-0.82715-0.40674-1.79444-0.35205z m0.70069 1.20313q0.75537 0.15381 1.2749 0.7417 0.3623 0.40674 0.50244 0.92627 0.05811 0.19482 0.06494 0.41357 0.00684 0.21533 0.00684 0.9707l0 0.96729-4.64844 0 0-1.06299q0-0.82715 0.01367-1.0083 0.01367-0.18457 0.09912-0.40674 0.22217-0.64258 0.74854-1.06982 0.52637-0.42725 1.19629-0.5127 0.14014-0.01367 0.3623 0 0.22559 0.01367 0.3794 0.04102z m3.85205 5.25q0.08203 0.04443 0.15723 0.12304 0.07861 0.0752 0.11279 0.15381 0.0376 0.0752 0.0581 0.19483 0.02051 0.11621 0.00684 2.19092l0 1.6372q0 0.3623-0.02734 0.48877-0.01367 0.08545-0.07178 0.14014l-0.01367 0.02734q-0.11279 0.12646-0.26661 0.19824l-0.0957 0.04102-8.37402 0-0.0957-0.04102q-0.15381-0.0581-0.26661-0.19824l-0.01367-0.02734q-0.05811-0.06836-0.07178-0.14014-0.02734-0.12646-0.02734-0.48877l0-1.65088q-0.01367-2.08838 0.01367-2.20117 0.01367-0.18115 0.1333-0.31445 0.11963-0.1333 0.28711-0.17432 0.06836-0.01367 4.25537-0.01367l4.20069 0.01367 0.09912 0.04102z"
-                          fill="#B3261E"
-                        ></path>
-                      </svg>
-                      <div
-                        data-pencil-name="StatusText"
-                        style='box-sizing: border-box; color: #B3261E; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 10px; font-style: normal; font-weight: 500; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                      >
-                        Secure
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  data-pencil-name="FilePreview" data-clickable @click="$router.push('/document-detail')"
-                  style="align-items: flex-start; border-radius: 10px; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 200px; gap: 10px; height: fit-content; justify-content: flex-start; max-width: 215px; min-width: 0px"
-                >
-                  <div
-                    data-pencil-name="PreviewMat"
-                    style="align-items: flex-start; background-color: #EEEFF2; border-radius: 12px; border: 1px solid #E3E5EA; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 0px; height: 268px; justify-content: flex-start; overflow: hidden; padding: 4px; width: 100%"
-                  >
-                    <div
-                      data-pencil-name="Page"
-                      style="align-items: flex-start; background-color: #FFFFFF; border-radius: 6px; box-shadow: 0px 8px 18px #16181D1F; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 8px; height: 100%; justify-content: flex-start; padding: 18px 14px"
-                    >
-                      <div
-                        data-pencil-name="PageAccent"
-                        style="background-color: #59606E; border-radius: 3px; box-sizing: border-box; flex-shrink: 0; height: 6px; width: 30px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageTitle"
-                        style="background-color: #C2C9D5; border-radius: 4px; box-sizing: border-box; flex-shrink: 0; height: 8px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 70px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 52px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageBlock"
-                        style="background-color: #F1F3F7; border-radius: 4px; box-sizing: border-box; flex-shrink: 0; height: 36px; width: 100%"
-                      ></div>
-                    </div>
-                  </div>
-                  <div
-                    data-pencil-name="PreviewMeta"
-                    style="align-items: center; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 8px; height: fit-content; justify-content: space-between; width: 100%"
-                  >
-                    <div
-                      data-pencil-name="NameCol"
-                      style="align-items: flex-start; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 2px; height: fit-content; justify-content: flex-start"
-                    >
-                      <div
-                        data-pencil-name="FileName"
-                        style='box-sizing: border-box; color: #16181D; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 12.5px; font-style: normal; font-weight: 600; letter-spacing: 0px; line-height: normal; text-align: left; width: 100%'
-                      >
-                        Robotics Club Minutes
-                      </div>
-                      <div
-                        data-pencil-name="FileMeta"
-                        style='box-sizing: border-box; color: #8A909C; font-family: "Fragment Mono", system-ui, sans-serif; font-size: 10px; font-style: normal; font-weight: 400; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                      >
-                        7 pages · 29 Jul
-                      </div>
-                    </div>
-                    <div
-                      data-pencil-name="StatusPill"
-                      style="align-items: center; background-color: #E4F2EA; border-radius: 9999px; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 4px; height: fit-content; justify-content: flex-start; padding: 3px 7px; width: fit-content"
-                    >
-                      <svg
-                        data-pencil-name="StatusIcon"
-                        data-icon-name="check"
-                        data-icon-set="lucide"
-                        viewBox="0 0 13.99993896484375 14"
-                        preserveAspectRatio="xMidYMid meet"
-                        xmlns="http://www.w3.org/2000/svg"
-                        style="box-sizing: border-box; flex-shrink: 0; height: 10px; width: 10px"
-                      >
-                        <path
-                          d="M11.48096 2.95313q-0.07178 0.01367-0.12989 0.0581-0.05469 0.04102-3.07617 3.06592l-3.0249 3.00781-1.28857-1.28857q-1.28857-1.28516-1.38086-1.32618-0.08887-0.04443-0.22217-0.04443-0.1333 0-0.23242 0.0376-0.0957 0.03418-0.18799 0.11279-0.08887 0.0752-0.1333 0.1709-0.02734 0.07178-0.03418 0.11279-0.00684 0.04102-0.00684 0.14014l0 0.04102q-0.01367 0.11279 0.04102 0.19824 0.07178 0.10938 0.36572 0.40332 0.19482 0.21191 0.96729 0.98096l1.49707 1.48339q0.28027 0.2666 0.38964 0.33838 0.07178 0.05469 0.18457 0.04102l0.09571 0.01367q0.07178 0 0.14013-0.02734 0.08545-0.07178 0.32129-0.28711 0.23926-0.21875 0.79981-0.76221l2.2832-2.2832q2.08496-2.09863 2.7002-2.71387 0.61524-0.61865 0.64599-0.68701 0.04102-0.08545 0.04102-0.23926 0-0.09912-0.00684-0.14014-0.00684-0.04102-0.03418-0.11279-0.04443-0.08203-0.13672-0.16406-0.08887-0.08545-0.18115-0.11963-0.08887-0.0376-0.20849-0.0376-0.11963 0-0.18799 0.02734z"
-                          fill="#177245"
-                        ></path>
-                      </svg>
-                      <div
-                        data-pencil-name="StatusText"
-                        style='box-sizing: border-box; color: #177245; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 10px; font-style: normal; font-weight: 500; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                      >
-                        Read
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  data-pencil-name="FilePreview" data-clickable @click="$router.push('/document-detail')"
-                  style="align-items: flex-start; border-radius: 10px; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 200px; gap: 10px; height: fit-content; justify-content: flex-start; max-width: 215px; min-width: 0px"
-                >
-                  <div
-                    data-pencil-name="PreviewMat"
-                    style="align-items: flex-start; background-color: #EEEFF2; border-radius: 12px; border: 1px solid #E3E5EA; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 0px; height: 268px; justify-content: flex-start; overflow: hidden; padding: 4px; width: 100%"
-                  >
-                    <div
-                      data-pencil-name="Page"
-                      style="align-items: flex-start; background-color: #FFFFFF; border-radius: 6px; box-shadow: 0px 8px 18px #16181D1F; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 8px; height: 100%; justify-content: flex-start; padding: 18px 14px"
-                    >
-                      <div
-                        data-pencil-name="PageAccent"
-                        style="background-color: #0E6E8C; border-radius: 3px; box-sizing: border-box; flex-shrink: 0; height: 6px; width: 30px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageTitle"
-                        style="background-color: #C2C9D5; border-radius: 4px; box-sizing: border-box; flex-shrink: 0; height: 8px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 70px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 52px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageBlock"
-                        style="background-color: #F1F3F7; border-radius: 4px; box-sizing: border-box; flex-shrink: 0; height: 36px; width: 100%"
-                      ></div>
-                    </div>
-                  </div>
-                  <div
-                    data-pencil-name="PreviewMeta"
-                    style="align-items: center; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 8px; height: fit-content; justify-content: space-between; width: 100%"
-                  >
-                    <div
-                      data-pencil-name="NameCol"
-                      style="align-items: flex-start; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 2px; height: fit-content; justify-content: flex-start"
-                    >
-                      <div
-                        data-pencil-name="FileName"
-                        style='box-sizing: border-box; color: #16181D; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 12.5px; font-style: normal; font-weight: 600; letter-spacing: 0px; line-height: normal; text-align: left; width: 100%'
-                      >
-                        Product Warranty Cards
-                      </div>
-                      <div
-                        data-pencil-name="FileMeta"
-                        style='box-sizing: border-box; color: #8A909C; font-family: "Fragment Mono", system-ui, sans-serif; font-size: 10px; font-style: normal; font-weight: 400; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                      >
-                        5 pages · 22 Jul
-                      </div>
-                    </div>
-                    <div
-                      data-pencil-name="StatusPill"
-                      style="align-items: center; background-color: #E4F2EA; border-radius: 9999px; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 4px; height: fit-content; justify-content: flex-start; padding: 3px 7px; width: fit-content"
-                    >
-                      <svg
-                        data-pencil-name="StatusIcon"
-                        data-icon-name="check"
-                        data-icon-set="lucide"
-                        viewBox="0 0 13.99993896484375 14"
-                        preserveAspectRatio="xMidYMid meet"
-                        xmlns="http://www.w3.org/2000/svg"
-                        style="box-sizing: border-box; flex-shrink: 0; height: 10px; width: 10px"
-                      >
-                        <path
-                          d="M11.48096 2.95313q-0.07178 0.01367-0.12989 0.0581-0.05469 0.04102-3.07617 3.06592l-3.0249 3.00781-1.28857-1.28857q-1.28857-1.28516-1.38086-1.32618-0.08887-0.04443-0.22217-0.04443-0.1333 0-0.23242 0.0376-0.0957 0.03418-0.18799 0.11279-0.08887 0.0752-0.1333 0.1709-0.02734 0.07178-0.03418 0.11279-0.00684 0.04102-0.00684 0.14014l0 0.04102q-0.01367 0.11279 0.04102 0.19824 0.07178 0.10938 0.36572 0.40332 0.19482 0.21191 0.96729 0.98096l1.49707 1.48339q0.28027 0.2666 0.38964 0.33838 0.07178 0.05469 0.18457 0.04102l0.09571 0.01367q0.07178 0 0.14013-0.02734 0.08545-0.07178 0.32129-0.28711 0.23926-0.21875 0.79981-0.76221l2.2832-2.2832q2.08496-2.09863 2.7002-2.71387 0.61524-0.61865 0.64599-0.68701 0.04102-0.08545 0.04102-0.23926 0-0.09912-0.00684-0.14014-0.00684-0.04102-0.03418-0.11279-0.04443-0.08203-0.13672-0.16406-0.08887-0.08545-0.18115-0.11963-0.08887-0.0376-0.20849-0.0376-0.11963 0-0.18799 0.02734z"
-                          fill="#177245"
-                        ></path>
-                      </svg>
-                      <div
-                        data-pencil-name="StatusText"
-                        style='box-sizing: border-box; color: #177245; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 10px; font-style: normal; font-weight: 500; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                      >
-                        Read
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  data-pencil-name="FilePreview" data-clickable @click="$router.push('/document-detail')"
-                  style="align-items: flex-start; border-radius: 10px; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 200px; gap: 10px; height: fit-content; justify-content: flex-start; max-width: 215px; min-width: 0px"
-                >
-                  <div
-                    data-pencil-name="PreviewMat"
-                    style="align-items: flex-start; background-color: #EEEFF2; border-radius: 12px; border: 1px solid #E3E5EA; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 0px; height: 268px; justify-content: flex-start; overflow: hidden; padding: 4px; width: 100%"
-                  >
-                    <div
-                      data-pencil-name="Page"
-                      style="align-items: flex-start; background-color: #FFFFFF; border-radius: 6px; box-shadow: 0px 8px 18px #16181D1F; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 8px; height: 100%; justify-content: flex-start; padding: 18px 14px"
-                    >
-                      <div
-                        data-pencil-name="PageAccent"
-                        style="background-color: #6B4FBB; border-radius: 3px; box-sizing: border-box; flex-shrink: 0; height: 6px; width: 30px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageTitle"
-                        style="background-color: #C2C9D5; border-radius: 4px; box-sizing: border-box; flex-shrink: 0; height: 8px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 70px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 52px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageBlock"
-                        style="background-color: #F1F3F7; border-radius: 4px; box-sizing: border-box; flex-shrink: 0; height: 36px; width: 100%"
-                      ></div>
-                    </div>
-                  </div>
-                  <div
-                    data-pencil-name="PreviewMeta"
-                    style="align-items: center; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 8px; height: fit-content; justify-content: space-between; width: 100%"
-                  >
-                    <div
-                      data-pencil-name="NameCol"
-                      style="align-items: flex-start; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 2px; height: fit-content; justify-content: flex-start"
-                    >
-                      <div
-                        data-pencil-name="FileName"
-                        style='box-sizing: border-box; color: #16181D; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 12.5px; font-style: normal; font-weight: 600; letter-spacing: 0px; line-height: normal; text-align: left; width: 100%'
-                      >
-                        Trip Itinerary — Kyoto
-                      </div>
-                      <div
-                        data-pencil-name="FileMeta"
-                        style='box-sizing: border-box; color: #8A909C; font-family: "Fragment Mono", system-ui, sans-serif; font-size: 10px; font-style: normal; font-weight: 400; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                      >
-                        8 pages · 15 Jul
-                      </div>
-                    </div>
-                    <div
-                      data-pencil-name="StatusPill"
-                      style="align-items: center; background-color: #E4F2EA; border-radius: 9999px; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 4px; height: fit-content; justify-content: flex-start; padding: 3px 7px; width: fit-content"
-                    >
-                      <svg
-                        data-pencil-name="StatusIcon"
-                        data-icon-name="check"
-                        data-icon-set="lucide"
-                        viewBox="0 0 13.99993896484375 14"
-                        preserveAspectRatio="xMidYMid meet"
-                        xmlns="http://www.w3.org/2000/svg"
-                        style="box-sizing: border-box; flex-shrink: 0; height: 10px; width: 10px"
-                      >
-                        <path
-                          d="M11.48096 2.95313q-0.07178 0.01367-0.12989 0.0581-0.05469 0.04102-3.07617 3.06592l-3.0249 3.00781-1.28857-1.28857q-1.28857-1.28516-1.38086-1.32618-0.08887-0.04443-0.22217-0.04443-0.1333 0-0.23242 0.0376-0.0957 0.03418-0.18799 0.11279-0.08887 0.0752-0.1333 0.1709-0.02734 0.07178-0.03418 0.11279-0.00684 0.04102-0.00684 0.14014l0 0.04102q-0.01367 0.11279 0.04102 0.19824 0.07178 0.10938 0.36572 0.40332 0.19482 0.21191 0.96729 0.98096l1.49707 1.48339q0.28027 0.2666 0.38964 0.33838 0.07178 0.05469 0.18457 0.04102l0.09571 0.01367q0.07178 0 0.14013-0.02734 0.08545-0.07178 0.32129-0.28711 0.23926-0.21875 0.79981-0.76221l2.2832-2.2832q2.08496-2.09863 2.7002-2.71387 0.61524-0.61865 0.64599-0.68701 0.04102-0.08545 0.04102-0.23926 0-0.09912-0.00684-0.14014-0.00684-0.04102-0.03418-0.11279-0.04443-0.08203-0.13672-0.16406-0.08887-0.08545-0.18115-0.11963-0.08887-0.0376-0.20849-0.0376-0.11963 0-0.18799 0.02734z"
-                          fill="#177245"
-                        ></path>
-                      </svg>
-                      <div
-                        data-pencil-name="StatusText"
-                        style='box-sizing: border-box; color: #177245; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 10px; font-style: normal; font-weight: 500; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                      >
-                        Read
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  data-pencil-name="FilePreview" data-clickable @click="$router.push('/document-detail')"
-                  style="align-items: flex-start; border-radius: 10px; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 200px; gap: 10px; height: fit-content; justify-content: flex-start; max-width: 215px; min-width: 0px"
-                >
-                  <div
-                    data-pencil-name="PreviewMat"
-                    style="align-items: flex-start; background-color: #EEEFF2; border-radius: 12px; border: 1px solid #E3E5EA; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 0px; height: 268px; justify-content: flex-start; overflow: hidden; padding: 4px; width: 100%"
-                  >
-                    <div
-                      data-pencil-name="Page"
-                      style="align-items: flex-start; background-color: #FFFFFF; border-radius: 6px; box-shadow: 0px 8px 18px #16181D1F; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 8px; height: 100%; justify-content: flex-start; padding: 18px 14px"
-                    >
-                      <div
-                        data-pencil-name="PageAccent"
-                        style="background-color: #6B4FBB; border-radius: 3px; box-sizing: border-box; flex-shrink: 0; height: 6px; width: 30px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageTitle"
-                        style="background-color: #C2C9D5; border-radius: 4px; box-sizing: border-box; flex-shrink: 0; height: 8px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 70px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 100%"
-                      ></div>
-                      <div
-                        data-pencil-name="PageLine"
-                        style="background-color: #E3E7EE; border-radius: 2px; box-sizing: border-box; flex-shrink: 0; height: 4px; width: 52px"
-                      ></div>
-                      <div
-                        data-pencil-name="PageBlock"
-                        style="background-color: #F1F3F7; border-radius: 4px; box-sizing: border-box; flex-shrink: 0; height: 36px; width: 100%"
-                      ></div>
-                    </div>
-                  </div>
-                  <div
-                    data-pencil-name="PreviewMeta"
-                    style="align-items: center; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 8px; height: fit-content; justify-content: space-between; width: 100%"
-                  >
-                    <div
-                      data-pencil-name="NameCol"
-                      style="align-items: flex-start; box-sizing: border-box; display: flex; flex-direction: column; flex: 1 1 0; gap: 2px; height: fit-content; justify-content: flex-start"
-                    >
-                      <div
-                        data-pencil-name="FileName"
-                        style='box-sizing: border-box; color: #16181D; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 12.5px; font-style: normal; font-weight: 600; letter-spacing: 0px; line-height: normal; text-align: left; width: 100%'
-                      >
-                        Recipe Collection
-                      </div>
-                      <div
-                        data-pencil-name="FileMeta"
-                        style='box-sizing: border-box; color: #8A909C; font-family: "Fragment Mono", system-ui, sans-serif; font-size: 10px; font-style: normal; font-weight: 400; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                      >
-                        26 pages · 9 Jul
-                      </div>
-                    </div>
-                    <div
-                      data-pencil-name="StatusPill"
-                      style="align-items: center; background-color: #E4F2EA; border-radius: 9999px; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 4px; height: fit-content; justify-content: flex-start; padding: 3px 7px; width: fit-content"
-                    >
-                      <svg
-                        data-pencil-name="StatusIcon"
-                        data-icon-name="check"
-                        data-icon-set="lucide"
-                        viewBox="0 0 13.99993896484375 14"
-                        preserveAspectRatio="xMidYMid meet"
-                        xmlns="http://www.w3.org/2000/svg"
-                        style="box-sizing: border-box; flex-shrink: 0; height: 10px; width: 10px"
-                      >
-                        <path
-                          d="M11.48096 2.95313q-0.07178 0.01367-0.12989 0.0581-0.05469 0.04102-3.07617 3.06592l-3.0249 3.00781-1.28857-1.28857q-1.28857-1.28516-1.38086-1.32618-0.08887-0.04443-0.22217-0.04443-0.1333 0-0.23242 0.0376-0.0957 0.03418-0.18799 0.11279-0.08887 0.0752-0.1333 0.1709-0.02734 0.07178-0.03418 0.11279-0.00684 0.04102-0.00684 0.14014l0 0.04102q-0.01367 0.11279 0.04102 0.19824 0.07178 0.10938 0.36572 0.40332 0.19482 0.21191 0.96729 0.98096l1.49707 1.48339q0.28027 0.2666 0.38964 0.33838 0.07178 0.05469 0.18457 0.04102l0.09571 0.01367q0.07178 0 0.14013-0.02734 0.08545-0.07178 0.32129-0.28711 0.23926-0.21875 0.79981-0.76221l2.2832-2.2832q2.08496-2.09863 2.7002-2.71387 0.61524-0.61865 0.64599-0.68701 0.04102-0.08545 0.04102-0.23926 0-0.09912-0.00684-0.14014-0.00684-0.04102-0.03418-0.11279-0.04443-0.08203-0.13672-0.16406-0.08887-0.08545-0.18115-0.11963-0.08887-0.0376-0.20849-0.0376-0.11963 0-0.18799 0.02734z"
-                          fill="#177245"
-                        ></path>
-                      </svg>
-                      <div
-                        data-pencil-name="StatusText"
-                        style='box-sizing: border-box; color: #177245; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 10px; font-style: normal; font-weight: 500; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                      >
-                        Read
-                      </div>
-                    </div>
-                  </div>
-                </div>
+
+              <!-- 空态：还没有文档 → 引导去扫描 / 导入 -->
+              <div v-else-if="isEmpty" class="rs-empty" data-pencil-name="ResultsEmpty">
+                <EmptyState
+                  icon="file-text"
+                  title="还没有文件，扫描或导入第一份文档"
+                  description="扫描纸质材料或导入已有文件，SnapVault 会自动建立可搜索层与标签。"
+                  action-text="扫描 / 导入"
+                  @action="router.push('/scan-import')"
+                />
               </div>
-              <div
-                data-pencil-name="LoadMore"
-                style="align-items: center; background-color: #FFFFFF; border-radius: 10px; border: 1px solid #E3E5EA; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 8px; height: 42px; justify-content: center; width: 100%"
-              >
-                <svg
-                  data-pencil-name="LoadMoreIcon"
-                  data-icon-name="plus"
-                  data-icon-set="lucide"
-                  viewBox="0 0 13.99993896484375 14"
-                  preserveAspectRatio="xMidYMid meet"
-                  xmlns="http://www.w3.org/2000/svg"
-                  style="box-sizing: border-box; flex-shrink: 0; height: 14px; width: 14px"
-                >
-                  <path
-                    d="M6.90088 2.35156q-0.0957 0.01367-0.17432 0.05127-0.0752 0.03418-0.15381 0.12647-0.0752 0.08887-0.11279 0.16748-0.03418 0.0752-0.03418 0.32812l0 3.40088-3.66748 0-0.08545 0.04102q-0.22217 0.11279-0.30078 0.33838-0.0752 0.22217 0.00684 0.43408 0.05811 0.0957 0.14013 0.18115 0.08545 0.08203 0.16748 0.11963 0.08545 0.03418 0.33838 0.03418l3.40088 0 0 3.40088q0 0.25293 0.03418 0.33838 0.0376 0.08203 0.11963 0.16748 0.08545 0.08203 0.18799 0.1333 0.10596 0.04785 0.23242 0.04785 0.12646 0 0.229-0.04785 0.10596-0.05127 0.18799-0.1333 0.08545-0.08545 0.11963-0.16748 0.0376-0.08545 0.0376-0.33838l0-3.40088 3.40088 0q0.25293 0 0.33496-0.03418 0.08545-0.0376 0.16748-0.11963 0.08545-0.08545 0.1333-0.18799 0.05127-0.10596 0.05127-0.23242 0-0.12646-0.04102-0.23926-0.09912-0.19482-0.29394-0.29394l-0.08545-0.04102-3.66748 0 0-3.38721q0-0.2666-0.02734-0.32128-0.07178-0.19824-0.25293-0.30079-0.18115-0.10596-0.39307-0.06494z"
-                    fill="#59606E"
-                  ></path>
-                </svg>
-                <div
-                  data-pencil-name="LoadMoreText"
-                  style='box-sizing: border-box; color: #59606E; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 12.5px; font-style: normal; font-weight: 500; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                >
-                  Load 60 more documents
+              <!-- 真实网格：分批追加（每批 24 条，每行 6 张） -->
+              <template v-if="!listLoading && !isEmpty">
+                <!-- 网格视图：每行 6 张卡片 -->
+                <template v-if="viewMode === 'grid'">
+                  <div
+                    v-for="(row, ri) in visibleRows"
+                    :key="'row-' + ri"
+                    data-pencil-name="PreviewRow"
+                    style="align-items: flex-start; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; flex-wrap: wrap; gap: 14px; height: fit-content; justify-content: flex-start; width: 100%"
+                  >
+                    <FilePreviewCard
+                      v-for="doc in row"
+                      :key="doc.id"
+                      :doc="doc"
+                      :selected="isSelected(doc.id)"
+                      @toggle="toggleSelect"
+                    />
+                  </div>
+                </template>
+
+                <!-- 列表视图：单行缩略图 + 名称 + meta + 标签 -->
+                <div v-else class="rs-list" data-pencil-name="ResultsList">
+                  <FileRowItem
+                    v-for="doc in visibleCards"
+                    :key="doc.id"
+                    :doc="doc"
+                    :selected="isSelected(doc.id)"
+                    @toggle="toggleSelect"
+                  />
                 </div>
-              </div>
+
+                <!-- 底栏三态：加载中 spinner / 手动加载更多 / 已加载全部 -->
+                <div
+                  data-pencil-name="LoadMore"
+                  :data-state="loadingMore ? 'loading' : hasMore ? 'more' : 'done'"
+                  style="align-items: center; background-color: #FFFFFF; border-radius: 10px; border: 1px solid #E3E5EA; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 8px; height: 42px; justify-content: center; width: 100%"
+                  @click="loadMore()"
+                >
+                  <span v-if="loadingMore" class="rs-spinner" aria-hidden="true"></span>
+                  <svg
+                    v-else-if="hasMore"
+                    data-pencil-name="LoadMoreIcon"
+                    data-icon-name="plus"
+                    data-icon-set="lucide"
+                    viewBox="0 0 13.99993896484375 14"
+                    preserveAspectRatio="xMidYMid meet"
+                    xmlns="http://www.w3.org/2000/svg"
+                    style="box-sizing: border-box; flex-shrink: 0; height: 14px; width: 14px"
+                  >
+                    <path
+                      d="M6.90088 2.35156q-0.0957 0.01367-0.17432 0.05127-0.0752 0.03418-0.15381 0.12647-0.0752 0.08887-0.11279 0.16748-0.03418 0.0752-0.03418 0.32812l0 3.40088-3.66748 0-0.08545 0.04102q-0.22217 0.11279-0.30078 0.33838-0.0752 0.22217 0.00684 0.43408 0.05811 0.0957 0.14013 0.18115 0.08545 0.08203 0.16748 0.11963 0.08545 0.03418 0.33838 0.03418l3.40088 0 0 3.40088q0 0.25293 0.03418 0.33838 0.0376 0.08203 0.11963 0.16748 0.08545 0.08203 0.18799 0.1333 0.10596 0.04785 0.23242 0.04785 0.12646 0 0.229-0.04785 0.10596-0.05127 0.18799-0.1333 0.08545-0.08545 0.11963-0.16748 0.0376-0.08545 0.0376-0.33838l0-3.40088 3.40088 0q0.25293 0 0.33496-0.03418 0.08545-0.0376 0.16748-0.11963 0.08545-0.08545 0.1333-0.18799 0.05127-0.10596 0.05127-0.23242 0-0.12646-0.04102-0.23926-0.09912-0.19482-0.29394-0.29394l-0.08545-0.04102-3.66748 0 0-3.38721q0-0.2666-0.02734-0.32128-0.07178-0.19824-0.25293-0.30079-0.18115-0.10596-0.39307-0.06494z"
+                      fill="#59606E"
+                    ></path>
+                  </svg>
+                  <div
+                    data-pencil-name="LoadMoreText"
+                    style='box-sizing: border-box; color: #59606E; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 12.5px; font-style: normal; font-weight: 500; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
+                  >
+                    {{ loadingMore ? 'Loading…' : hasMore ? 'Load more documents' : '已加载全部 ' + docs.length + ' 条' }}
+                  </div>
+                </div>
+              </template>
+
+              <!-- 底部哨兵：距底 200px 时触发追加下一批 -->
+              <div ref="sentinel" class="rs-sentinel" aria-hidden="true"></div>
             </div>
             <!-- 设计稿搜索式头部：四个绝对定位块直接浮于 LibraryPanel（无底板），与 search 页头部一致 -->
             <div
@@ -1413,7 +135,17 @@
                 >
                   <div
                     data-pencil-name="GridBtn"
-                    style="align-items: center; background-color: #EEEFF2; border-radius: 6px; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 0px; height: 26px; justify-content: center; width: 30px"
+                    class="vt-btn sv-focus"
+                    :class="{ 'is-active': viewMode === 'grid' }"
+                    role="button"
+                    tabindex="0"
+                    :aria-pressed="viewMode === 'grid'"
+                    aria-label="Grid view"
+                    data-clickable
+                    style="align-items: center; background-color: #FFFFFF00; border-radius: 6px; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 0px; height: 26px; justify-content: center; width: 30px"
+                    @click="setViewMode('grid')"
+                    @keydown.enter.prevent="setViewMode('grid')"
+                    @keydown.space.prevent="setViewMode('grid')"
                   >
                     <svg
                       data-pencil-name="GridIcon"
@@ -1431,8 +163,18 @@
                     </svg>
                   </div>
                   <div
-                    data-pencil-name="ListBtn" data-clickable @click="$emit('search')"
+                    data-pencil-name="ListBtn"
+                    class="vt-btn sv-focus"
+                    :class="{ 'is-active': viewMode === 'list' }"
+                    role="button"
+                    tabindex="0"
+                    :aria-pressed="viewMode === 'list'"
+                    aria-label="List view"
+                    data-clickable
                     style="align-items: center; background-color: #FFFFFF00; border-radius: 6px; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 0px; height: 26px; justify-content: center; width: 30px"
+                    @click="setViewMode('list')"
+                    @keydown.enter.prevent="setViewMode('list')"
+                    @keydown.space.prevent="setViewMode('list')"
                   >
                     <svg
                       data-pencil-name="ListIcon"
@@ -1450,45 +192,17 @@
                     </svg>
                   </div>
                 </div>
-                <div
-                  data-pencil-name="SortMenu"
-                  style="align-items: center; background-color: #FFFFFF; border-radius: 9px; border: 1px solid #E3E5EA; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 8px; height: 32px; justify-content: flex-start; padding: 8px 12px; width: fit-content"
-                >
-                  <svg
-                      data-pencil-name="SortIcon"
-                      data-icon-name="arrow-up-down"
-                      data-icon-set="lucide"
-                      viewBox="0 0 13.99993896484375 14"
-                      preserveAspectRatio="xMidYMid meet"
-                      xmlns="http://www.w3.org/2000/svg"
-                      style="box-sizing: border-box; flex-shrink: 0; height: 14px; width: 14px"
-                    >
-                      <path
-                        d="M3.8623 1.79102q-0.05469 0.01367-0.27343 0.21875-0.21533 0.20166-1.0835 1.06982-0.89551 0.89551-1.08691 1.10059-0.18799 0.20166-0.21533 0.27343-0.06836 0.2085 0.01367 0.42725 0.08545 0.21533 0.28027 0.31445 0.09912 0.04102 0.23926 0.04102l0.02734 0q0.12646 0 0.19483-0.02735 0.07178-0.02734 0.23925-0.18457 0.11279-0.0957 0.50586-0.50244l0.79639-0.78271 0 7.14014q0.01367 0.69726 0.02734 0.8955 0.01367 0.14014 0.05811 0.19483l0.02734 0.02734q0.15381 0.22559 0.417 0.24609 0.2666 0.02051 0.46484-0.17431 0.12646-0.12646 0.15381-0.29395 0.02734-0.11279 0.02734-4.06054l0-3.96143 0.68701 0.70068q0.46143 0.44775 0.60157 0.58106 0.14014 0.12988 0.20849 0.16064 0.23926 0.10938 0.46143 0.01367 0.22559-0.09912 0.32129-0.32128 0.09912-0.22559-0.01026-0.46485-0.03076-0.06836-0.23926-0.29053-0.2085-0.22559-1.04931-1.05273-1.23389-1.23047-1.32617-1.27148-0.08887-0.04443-0.22901-0.05127-0.14014-0.00684-0.23926 0.03418z m5.90967-0.02735q-0.14014 0.04102-0.2666 0.16065-0.12646 0.11963-0.15381 0.30078-0.02734 0.08545-0.02734 4.04687l0 3.9751-0.68701-0.70068q-0.43408-0.43408-0.58789-0.5708-0.15381-0.14014-0.2085-0.15723-0.19824-0.0957-0.3999-0.0376-0.20166 0.05469-0.32813 0.21533-0.12646 0.16064-0.11279 0.36914l0 0.02735q0.01367 0.11279 0.05469 0.18457 0.07178 0.10938 0.3247 0.37597l0.96387 0.96729q1.23389 1.23047 1.32276 1.2749 0.09229 0.04102 0.24609 0.04102l0.04102 0q0.11279 0.01367 0.19824-0.02735 0.0957-0.07178 0.34863-0.30761 0.18115-0.1709 0.81348-0.81348l0.19482-0.19482q0.88184-0.88184 1.06983-1.07666 0.19141-0.19824 0.21875-0.27002 0.06836-0.2085-0.01026-0.417-0.0752-0.21191-0.28369-0.3247-0.09912-0.04102-0.23926-0.04102l-0.02734 0q-0.12646 0-0.19824 0.02735-0.06836 0.02734-0.23584 0.18457-0.11279 0.0957-0.50586 0.50244l-0.79639 0.78271 0-7.14013q-0.01367-0.69727-0.02734-0.89551-0.01367-0.14014-0.05811-0.19483l-0.01367-0.02734q-0.0957-0.14014-0.28028-0.2085-0.18115-0.07178-0.34863-0.03076z"
-                        fill="#59606E"
-                      ></path>
-                    </svg>
-                  <div
-                    data-pencil-name="SortLabel"
-                    style='box-sizing: border-box; color: #16181D; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 13px; font-style: normal; font-weight: 500; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
-                  >
-                    Best match
-                  </div>
-                  <svg
-                      data-pencil-name="SortChevron"
-                      data-icon-name="chevron-down"
-                      data-icon-set="lucide"
-                      viewBox="0 0 13.99993896484375 14"
-                      preserveAspectRatio="xMidYMid meet"
-                      xmlns="http://www.w3.org/2000/svg"
-                      style="box-sizing: border-box; flex-shrink: 0; height: 14px; width: 14px"
-                    >
-                      <path
-                        d="M3.34619 4.68945q-0.25293 0.08545-0.37939 0.30762-0.04102 0.08545-0.04102 0.25293 0 0.16748 0.04785 0.25977 0.05127 0.08887 1.8628 1.9038 1.81494 1.81152 1.9038 1.8628 0.09229 0.04785 0.25977 0.04785 0.16748 0 0.25635-0.04785 0.09229-0.05127 1.90381-1.8628 1.81494-1.81494 1.86279-1.9038 0.05127-0.09229 0.05127-0.25977 0-0.16748-0.04102-0.25293-0.09912-0.16748-0.28027-0.2666-0.05811-0.02734-0.09912-0.04102-0.04102-0.01367-0.15381-0.01367-0.11279 0-0.15381 0.01367-0.04101 0.01367-0.11279 0.04102-0.09912 0.05811-1.66455 1.62695l-1.56885 1.56543-2.82666-2.81299q-0.31104-0.29395-0.42041-0.37939-0.08545-0.05469-0.19824-0.05469l-0.02735 0q-0.14014 0-0.18115 0.01367z"
-                        fill="#8A909C"
-                      ></path>
-                    </svg>
-                </div>
+                <SortMenu
+                  ref="sortMenuRef"
+                  :label="sortLabel"
+                  :options="SORT_OPTIONS"
+                  :active-index="sortIndex"
+                  :selected-key="sortKey"
+                  :open="sortOpen"
+                  @toggle="toggleSort"
+                  @choose="chooseSort"
+                  @keydown="onSortKeydown"
+                />
               </div>
             </div>
             <div
@@ -1522,8 +236,9 @@
                 spellcheck="false"
                 @input="onInput"
                 @focus="open"
-                @blur="close"
-                @keydown="onKeydown"
+                @click="open"
+                @blur="onBlur"
+                @keydown="onKey"
               />
               <svg
                       data-pencil-name="SearchClear"
@@ -1587,7 +302,11 @@
                 :recent="recent"
                 :results="results"
                 :loading="loading"
+                :active-index="activeIndex"
                 @pick="onPick"
+                @close="close"
+                @move="moveActive"
+                @activate="setActive"
               />
             </div>
             <div
@@ -1692,6 +411,7 @@
               </div>
             </div>
             <div
+              v-if="isBatchActive"
               data-pencil-name="BatchBar"
               style="align-items: center; backdrop-filter: blur(30px); background-image: linear-gradient(180deg, #FFFFFFF7 0%, #FFFFFFD6 100%); background-repeat: no-repeat; background-size: 100% 100%; border-radius: 9999px; border: 1px solid #FFFFFFCC; box-shadow: 0px 14px 34px #16181D26; box-sizing: border-box; display: flex; flex-direction: row; gap: 0px; height: 58px; justify-content: space-between; left: 440px; padding: 0px 20px; position: absolute; top: 756px; width: 560px; z-index: 2"
             >
@@ -1701,9 +421,18 @@
               >
                 <div
                   data-pencil-name="BatchCheckbox"
-                  style="align-items: center; background-color: #2B5BD7; border-radius: 6px; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 0px; height: 20px; justify-content: center; width: 20px"
+                  class="batch-checkbox sv-focus"
+                  :class="{ 'is-all': allSelected }"
+                  role="checkbox"
+                  :aria-checked="allSelected"
+                  aria-label="全选 / 取消全选"
+                  tabindex="0"
+                  @click="toggleSelectAll"
+                  @keydown.enter.stop.prevent="toggleSelectAll"
+                  @keydown.space.stop.prevent="toggleSelectAll"
                 >
                   <svg
+                    v-if="allSelected"
                     data-pencil-name="BatchCheckIcon"
                     data-icon-name="check"
                     data-icon-set="lucide"
@@ -1722,7 +451,7 @@
                   data-pencil-name="BatchCount"
                   style='box-sizing: border-box; color: #2B5BD7; font-family: "Instrument Sans", system-ui, sans-serif; font-size: 13.5px; font-style: normal; font-weight: 700; letter-spacing: 0px; line-height: normal; text-align: left; white-space: nowrap'
                 >
-                  3 selected
+                  {{ selectedCount }} selected
                 </div>
               </div>
               <div
@@ -1732,6 +461,7 @@
                 <div
                   data-pencil-name="BatchAction"
                   style="align-items: center; background-color: #FFFFFF; border-radius: 9999px; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 6px; height: fit-content; justify-content: flex-start; padding: 6px 12px; width: fit-content"
+                  @click="notifyBatchStub('Move')"
                 >
                   <svg
                     data-pencil-name="BatchActionIcon"
@@ -1757,6 +487,7 @@
                 <div
                   data-pencil-name="BatchAction"
                   style="align-items: center; background-color: #FFFFFF; border-radius: 9999px; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 6px; height: fit-content; justify-content: flex-start; padding: 6px 12px; width: fit-content"
+                  @click="notifyBatchStub('Tag')"
                 >
                   <svg
                     data-pencil-name="BatchActionIcon"
@@ -1782,6 +513,7 @@
                 <div
                   data-pencil-name="BatchAction"
                   style="align-items: center; background-color: #FFFFFF; border-radius: 9999px; box-sizing: border-box; display: flex; flex-direction: row; flex-shrink: 0; gap: 6px; height: fit-content; justify-content: flex-start; padding: 6px 12px; width: fit-content"
+                  @click="deleteSelected"
                 >
                   <svg
                     data-pencil-name="BatchActionIcon"
@@ -1812,22 +544,271 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useSearchFocus } from '../composables/useSearchFocus'
 import SearchSuggestPanel from '../components/SearchSuggestPanel.vue'
+import SortMenu from '../components/SortMenu.vue'
+import SkeletonCard from '../components/SkeletonCard.vue'
+import EmptyState from '../components/EmptyState.vue'
+import FilePreviewCard from '../components/FilePreviewCard.vue'
+import FileRowItem from '../components/FileRowItem.vue'
+import { useToast } from '../composables/useToast'
+import { useBatchSelect } from '../composables/useBatchSelect'
+import { useLibraryStore } from '../stores/library'
+import { documentsApi } from '../api'
+import { confirmDestroy } from '../composables/useConfirmDestroy'
 
 const emit = defineEmits(['search'])
 const router = useRouter()
+const route = useRoute()
+const { toast } = useToast()
+
+// ---- 结果区三态：loading（6 张骨架卡）→ empty（EmptyState）→ ready（真实卡片）----
+// active 由 LibraryView 传入（拉条吸附到 pulled 位），此时列表才真正可见。
+// 数据由 library store 分页拉取（GET /api/documents）：首屏 24 条、触底追加下一批。
+// ?empty=1 为演示 / 联调空态的钩子。
+const props = defineProps({
+  active: { type: Boolean, default: true },
+})
+const listLoading = ref(false) // 首屏 / 重载时展示骨架
+const loadingMore = ref(false) // 追加下一批时底部 loading
+const isEmpty = computed(
+  () => route.query.empty === '1' || (!listLoading.value && library.loaded && docs.value.length === 0)
+)
+
+// ---- 文档数据：来自 library store（后端分页结果，已加载页的累积）----
+// 放到 store 是为了让 DocumentDetail 的删除也能真正改动库列表，撤销时按原索引插回。
+const library = useLibraryStore()
+const docs = computed(() => library.docs)
+
+// ---- 分批渲染：store 内已是累积结果，直接整表渲染；触底追加下一批 ----
+const visibleCards = computed(() => docs.value)
+// 每 6 张一个 PreviewRow，保持设计稿的行结构
+const visibleRows = computed(() => {
+  const out = []
+  for (let i = 0; i < visibleCards.value.length; i += 6) out.push(visibleCards.value.slice(i, i + 6))
+  return out
+})
+const hasMore = computed(() => docs.value.length < library.total)
+
+// ---- 排序：按名称 / 最近修改 / 页数（默认最近修改）----
+// 分页数据必须由服务端排序才正确：切换排序时重置到第 1 页重新拉取。
+const SORT_OPTIONS = [
+  { key: 'updated', label: 'Last modified', sort: 'updated', order: 'desc' },
+  { key: 'name', label: 'Name', sort: 'name', order: 'asc' },
+  { key: 'pages', label: 'Page count', sort: 'pages', order: 'desc' },
+]
+const sortKey = ref('updated')
+const sortIndex = ref(0) // 下拉内高亮项
+const sortOpen = ref(false)
+const sortMenuRef = ref(null)
+const sortLabel = computed(() => SORT_OPTIONS.find((o) => o.key === sortKey.value)?.label ?? '')
+const sortParams = computed(() => {
+  const o = SORT_OPTIONS.find((x) => x.key === sortKey.value)
+  return { sort: o?.sort, order: o?.order }
+})
+
+function openSort() {
+  sortIndex.value = Math.max(0, SORT_OPTIONS.findIndex((o) => o.key === sortKey.value))
+  sortOpen.value = true
+  sortMenuRef.value?.focus()
+}
+
+function chooseSort(key) {
+  const changed = key !== sortKey.value
+  sortKey.value = key
+  sortOpen.value = false
+  if (changed) reload() // 排序变化 → 回到第 1 页重新拉取
+}
+
+function toggleSort() {
+  if (sortOpen.value) sortOpen.value = false
+  else openSort()
+}
+
+// 键盘：↑↓ 移动高亮（关闭时先展开），Enter/Space 展开或选中，Esc 关闭
+function onSortKeydown(e) {
+  if (e.key === 'Escape') {
+    sortOpen.value = false
+    return
+  }
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    e.preventDefault()
+    const last = SORT_OPTIONS.length - 1
+    if (!sortOpen.value) openSort()
+    sortIndex.value = Math.max(0, Math.min(last, sortIndex.value + (e.key === 'ArrowDown' ? 1 : -1)))
+    return
+  }
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault()
+    if (sortOpen.value) chooseSort(SORT_OPTIONS[sortIndex.value].key)
+    else openSort()
+  }
+}
+
+function onSortDocPointerDown(e) {
+  if (sortOpen.value && sortMenuRef.value?.el && !sortMenuRef.value.el.contains(e.target)) sortOpen.value = false
+}
+watch(sortOpen, (on) => {
+  if (on) document.addEventListener('pointerdown', onSortDocPointerDown, true)
+  else document.removeEventListener('pointerdown', onSortDocPointerDown, true)
+})
+onBeforeUnmount(() => document.removeEventListener('pointerdown', onSortDocPointerDown, true))
+
+// ---- 网格 / 列表视图切换（记住上次选择）----
+const VIEW_MODE_KEY = 'snapvault:library-view-mode'
+function readViewMode() {
+  try {
+    const v = localStorage.getItem(VIEW_MODE_KEY)
+    return v === 'list' || v === 'grid' ? v : 'grid'
+  } catch (e) {
+    return 'grid'
+  }
+}
+const viewMode = ref(readViewMode())
+function setViewMode(mode) {
+  viewMode.value = mode
+}
+watch(viewMode, (v) => {
+  try {
+    localStorage.setItem(VIEW_MODE_KEY, v)
+  } catch (e) {
+    /* 隐私模式等场景忽略写入失败 */
+  }
+})
+
+// ---- 批量选择（多选 + 批量操作）----
+const { selectedIds, count: selectedCount, isBatchActive, has: isSelected, toggle: toggleSelect, selectAll, clear: clearSelection } =
+  useBatchSelect()
+const allSelected = computed(() => docs.value.length > 0 && selectedCount.value === docs.value.length)
+
+// 全选 / 取消全选（作用于全部文档，而非仅当前已加载的一批）
+function toggleSelectAll() {
+  if (allSelected.value) clearSelection()
+  else selectAll(docs.value.map((d) => d.id))
+}
+
+// 批量删除：二次确认 → 从 store 移除 → 可撤销（按原索引插回 + 恢复选择）
+async function deleteSelected() {
+  const ids = [...selectedIds.value]
+  if (!ids.length) return
+  const n = ids.length
+  let removed = []
+  const ok = await confirmDestroy({
+    title: `删除选中的 ${n} 个文件？`,
+    message: '文件将被移入回收站，可在通知中撤销。',
+    confirmLabel: '删除',
+    onConfirm: async () => {
+      // 后端删除成功后同步本地列表；失败抛错由 confirmDestroy 统一提示
+      await documentsApi.remove(ids, { silent: true })
+      removed = library.removeByIds(ids)
+    },
+    undoTitle: `已删除 ${n} 个文件`,
+    undoMessage: '文件已移入回收站',
+    undoLabel: '撤销',
+    undoAction: () => {
+      library.restore(removed)
+      selectAll(removed.map(({ doc }) => doc.id))
+    },
+  })
+  // 取消时保留选中，便于用户改主意
+  if (ok) clearSelection()
+}
+
+// 占位动作：Move / Tag 尚未接入后端，给出明确反馈而非静默
+function notifyBatchStub(name) {
+  toast({ type: 'info', title: '功能待接入后端', message: `「${name}」将在后端接口就绪后可用` })
+}
+
+const resultsEl = ref(null) // 滚动容器（IntersectionObserver 的 root）
+const sentinel = ref(null) // 底部哨兵
+let io = 0
+let ctrl = null // 首屏 / 重载请求的取消信号
+
+// 追加后内容变高，重新挂载哨兵以强制重新评估（仍在视口内时可继续追加）
+function reevaluateSentinel() {
+  if (io && sentinel.value) {
+    io.unobserve(sentinel.value)
+    io.observe(sentinel.value)
+  }
+}
+
+// 重载首屏：取消在途请求 → 清空列表 → 拉第 1 页；失败时回到空列表
+async function reload() {
+  ctrl?.abort()
+  ctrl = new AbortController()
+  const { signal } = ctrl
+  listLoading.value = true
+  loadingMore.value = false
+  clearSelection() // 重新加载时清空选中，避免残留
+  try {
+    await library.loadPage(1, { ...sortParams.value, signal })
+  } catch (e) {
+    if (!signal.aborted) library.reset()
+  } finally {
+    if (!signal.aborted) listLoading.value = false
+  }
+}
+
+// 触底追加下一批
+async function loadMore() {
+  if (listLoading.value || isEmpty.value || loadingMore.value || !hasMore.value) return
+  loadingMore.value = true
+  try {
+    await library.loadPage(library.page + 1, { ...sortParams.value, signal: ctrl?.signal })
+  } catch (e) {
+    /* 失败已由 http 层统一 toast */
+  } finally {
+    loadingMore.value = false
+    reevaluateSentinel()
+  }
+}
+
+onMounted(() => {
+  if (!sentinel.value || !resultsEl.value) return
+  io = new IntersectionObserver(
+    (entries) => {
+      if (entries.some((e) => e.isIntersecting)) loadMore()
+    },
+    { root: resultsEl.value, rootMargin: '0px 0px 200px 0px', threshold: 0 }
+  )
+  io.observe(sentinel.value)
+})
+
+watch(
+  () => props.active,
+  (on) => {
+    if (on) reload()
+  },
+  { immediate: true }
+)
+onBeforeUnmount(() => {
+  ctrl?.abort()
+  if (io) {
+    io.disconnect()
+    io = 0
+  }
+})
 
 // ---- 搜索框：真实 input + 聚焦交互（背景模糊变暗、下拉「最近搜索」与实时结果）----
-const { query, focused, loading, results, recent, onInput, open, close, clear, pick, onKeydown } =
+const { query, focused, loading, results, recent, activeIndex, activeResult, onInput, open, close, onBlur, clear, pick, moveActive, setActive, onKeydown } =
   useSearchFocus()
 
 // 选中「最近搜索」回填查询；选中具体结果直接进文档详情
 function onPick(text, item) {
   if (item) router.push('/document-detail')
   else pick(text)
+}
+
+// 键盘动作：↑↓/Tab/Esc 由 useSearchFocus 处理；Enter 与点击一致（选中高亮结果 → 文档详情）。
+// 没有高亮结果（空关键词 / 无匹配）时，Enter 进入完整搜索页（LibrarySearchView）。
+function onKey(e) {
+  const action = onKeydown(e)
+  if (action !== 'submit') return
+  const item = activeResult.value
+  if (item) router.push('/document-detail')
+  else emit('search')
 }
 
 // ---- 文档卡片 3D 倾斜悬浮 ----
@@ -1965,69 +946,125 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-[data-pencil-name="FilePreview"] {
-  perspective: 1000px;
-  translate: 0 0;
-  transition: translate 200ms ease-out;
-}
-[data-pencil-name="FilePreview"].is-tilted {
-  translate: 0 -4px;
-  will-change: transform;
-}
-[data-pencil-name="PreviewMat"] {
-  transition: border-color 240ms ease;
-}
-[data-pencil-name="FilePreview"].is-tilted [data-pencil-name="PreviewMat"] {
-  border-color: #2b5bd7 !important;
-}
-[data-pencil-name="FilePreview"] [data-pencil-name="Page"] {
-  transition: transform 200ms ease-out;
-}
-[data-pencil-name="FilePreview"].is-tilted [data-pencil-name="Page"] {
-  will-change: transform;
+/* 注：FilePreview 的 3D 倾斜样式已随卡片抽到 FilePreviewCard.vue（scoped 后代选择器无法穿透子组件） */
+
+/* ---- 搜索框聚焦：共享基座见 src/styles/shared.css；pulled 的遮罩/抬升层级更低 ---- */
+[data-pencil-name="LibraryPanel"] {
+  --sf-dim-z: 30;
+  --sf-raised-z: 40;
 }
 
-/* ---- 搜索框聚焦：页面背景 blur(4px) + 变暗 70%，搜索框抬升强调（宽度保持全宽）---- */
-.sf-dim {
-  position: absolute;
-  inset: 0;
-  z-index: 30;
-  background-color: rgba(12, 12, 14, 0.7);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+/* ---- 结果区三态：骨架网格 / 空态容器 / 真实网格统一淡入，避免切换闪烁 ---- */
+.rs-grid {
+  display: flex;
+  flex-direction: row;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 14px;
+  width: 100%;
 }
-.sf-bar {
-  transition: box-shadow 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
-    transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+.rs-empty {
+  display: flex;
+  flex: 1 1 auto;
+  width: 100%;
 }
-.sf-bar.sf-raised {
-  z-index: 40 !important;
-  box-shadow: 0 0 0 4px rgba(43, 91, 215, 0.16), 0 16px 34px rgba(22, 24, 29, 0.2);
+[data-pencil-name="PreviewRow"] {
+  animation: sv-rise-in var(--sv-dur-move) var(--sv-ease-out) both;
 }
-.sf-input {
+
+/* ---- 无限滚动：底部哨兵（1px，不占视觉）与批次加载 spinner ---- */
+.rs-sentinel {
+  flex-shrink: 0;
+  height: 1px;
+  width: 100%;
+}
+.rs-spinner {
   box-sizing: border-box;
-  flex: 1 1 0;
-  min-width: 0;
-  padding: 0;
-  border: none;
-  outline: none;
-  background: transparent;
-  color: #16181d;
-  font-family: "Instrument Sans", system-ui, sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0;
-  line-height: normal;
-  text-align: left;
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #e3e5ea;
+  border-top-color: var(--sv-accent);
+  border-radius: 50%;
+  animation: sv-spin 700ms linear infinite;
 }
-.sf-input::placeholder {
-  color: #8a909c;
-  font-weight: 400;
+@media (prefers-reduced-motion: reduce) {
+  .rs-spinner {
+    animation: none;
+  }
 }
-.sf-clear {
+
+/* ---- 批量栏：全选框 / 动作按钮的交互态（按底色为内联样式，hover 需 !important 覆盖）---- */
+.batch-checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  border: 2px solid var(--sv-line-2);
+  border-radius: 6px;
+  background-color: transparent;
   cursor: pointer;
+  transition:
+    background-color var(--sv-dur-fast) var(--sv-ease-out),
+    border-color var(--sv-dur-fast) var(--sv-ease-out);
 }
-.sf-clear.hidden {
-  visibility: hidden;
+.batch-checkbox:hover {
+  border-color: var(--sv-accent);
+}
+.batch-checkbox.is-all {
+  border-color: var(--sv-accent);
+  background-color: var(--sv-accent);
+}
+
+[data-pencil-name="BatchAction"] {
+  cursor: pointer;
+  transition: background-color var(--sv-dur-fast) var(--sv-ease-out);
+}
+[data-pencil-name="BatchAction"]:hover {
+  background-color: var(--sv-surface-2) !important;
+}
+[data-pencil-name="BatchAction"]:active {
+  background-color: var(--sv-surface-3) !important;
+}
+
+/* ---- 列表视图：整块白底 + 行分隔线（行内 hover 由 FileRowItem 负责）---- */
+.rs-list {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: 100%;
+  background-color: var(--sv-surface);
+  border: 1px solid var(--sv-line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* ---- 视图切换按钮：激活态用 token 配色（内联背景需 !important 覆盖）---- */
+.vt-btn {
+  transition: background-color var(--sv-dur-fast) var(--sv-ease-out);
+}
+.vt-btn:hover {
+  background-color: var(--sv-surface-2) !important;
+}
+.vt-btn.is-active {
+  background-color: var(--sv-surface-2) !important;
+}
+.vt-btn svg path {
+  transition: fill var(--sv-dur-fast) var(--sv-ease-out);
+}
+.vt-btn.is-active svg path {
+  fill: var(--sv-ink) !important;
+}
+.vt-btn:not(.is-active) svg path {
+  fill: var(--sv-ink-3) !important;
+}
+
+/* 排序下拉需浮于 SearchBar / SearchCaption / FilterBar 之上：
+   它们同为 z-index:1，按 DOM 顺序后出现的会盖住头部内的下拉面板。 */
+[data-pencil-name="SearchHeader"] {
+  z-index: 5 !important;
 }
 </style>
