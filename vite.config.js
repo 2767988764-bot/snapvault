@@ -3,6 +3,8 @@ import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
+  // GitHub Pages 项目站点部署在子路径下，由 CI 注入 VITE_BASE（如 /snapvault/）
+  base: process.env.VITE_BASE || '/',
   plugins: [vue()],
   resolve: {
     alias: {
